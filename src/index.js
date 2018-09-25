@@ -1,21 +1,31 @@
-function afterOrBefore (type) {
-  return function (cbOrContent, ...args) {
-    switch (typeof cbOrContent) {
-    case 'object': {
-      if (!cbOrContent) {
-        throw new Error('Cannot suppy `null`');
-      }
-      if (cbOrContent.nodeType === 1 || // ELEMENT
-        cbOrContent.nodeType === 3 // TEXT
-      ) {
-        this.forEach((node) => {
-          node[type](cbOrContent.cloneNode(true), ...(args.map((arg) => arg.cloneNode(true))));
-        });
-      } else {
-        // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
-      }
-      break;
+function convertToDOM (type, content) {
+  switch (typeof content) {
+  case 'object': {
+    if (!content) {
+      throw new TypeError('Cannot supply `null`');
     }
+    if (content.nodeType === 1 || // ELEMENT
+      content.nodeType === 3 // TEXT
+    ) {
+      return content.cloneNode(true);
+    }
+    // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
+    return;
+  }
+  case 'string': {
+    const div = document.createElement('div');
+    div.innerHTML = content;
+    return div.firstElementChild;
+  }
+  default:
+    throw new TypeError('Bad content for ' + type);
+  }
+}
+
+function insert (type) {
+  return function (...args) {
+    const [cbOrContent] = args;
+    switch (typeof cbOrContent) {
     case 'function': {
       this.forEach((node, i) => {
         const ret = cbOrContent.call(this, i, node.textContent);
@@ -23,13 +33,9 @@ function afterOrBefore (type) {
       });
       break;
     }
-    case 'string': {
+    default: {
       this.forEach((node) => {
-        [cbOrContent, ...args].forEach((str) => {
-          const div = document.createElement('div');
-          div.innerHTML = str;
-          node[type](div.firstElementChild);
-        });
+        node[type](...args.map((content) => convertToDOM(type, content)));
       });
       break;
     }
@@ -39,7 +45,8 @@ function afterOrBefore (type) {
 }
 
 export default function ($) {
-  $.extend('after', afterOrBefore('after'));
-  $.extend('before', afterOrBefore('before'));
+  ['after', 'before', 'append', 'prepend'].forEach((method) => {
+    $.extend(method, insert(method));
+  });
   return $;
 }
