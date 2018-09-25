@@ -2,6 +2,8 @@ import $ from '../node_modules/query-result/esm/index.js';
 // import manipulation from '../dist/index-es.js';
 import manipulation from '../src/index.js';
 
+manipulation($);
+
 // Todo: Move to traversal
 $.extend('each', function each (cb, thisObj) {
   this.forEach(cb, thisObj);
@@ -15,8 +17,6 @@ $('p').map((p) => {
   console.log('ppp', p);
 })
 */
-
-manipulation($);
 
 $('p').after(function (i, oldTxt) {
   const node = document.createElement('div');
