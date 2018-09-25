@@ -13,6 +13,11 @@ In very early stages...
 
 ## Methods
 
+- `append(content [, content])` - Not yet supporting arrays or QueryResult objects
+- `append(function-html)`
+- `prepend(content [, content])` - Not yet supporting arrays or QueryResult objects
+- `prepend(function-html)`
+
 - `after(content [, content])` - Not yet supporting arrays or QueryResult objects
 - `after(function-html)`
 - `before(content [, content])` - Not yet supporting arrays or QueryResult objects
