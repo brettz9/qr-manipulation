@@ -1,0 +1,54 @@
+{
+  "name": "qr-manipulation",
+  "version": "0.1.0",
+  "description": "Extension for Query Result to add jQuery-type functionality",
+  "main": "dist/index-umd.js",
+  "module": "dist/index-es.js",
+  "directories": {
+    "test": "test"
+  },
+  "engines": {},
+  "scripts": {
+    "eslint": "eslint .",
+    "rollup": "rollup -c",
+    "start": "echo \"Open file to http://localhost:8007/test/\" && static -p 8007",
+    "test": "npm run eslint && npm run rollup && opn http://localhost:8007/test/ && static -p 8007"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brettz9/qr-manipulation.git"
+  },
+  "keywords": [
+    "qr-result",
+    "jquery",
+    "manipulation"
+  ],
+  "author": "Brett Zamir",
+  "contributors": [],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brettz9/qr-manipulation/issues"
+  },
+  "homepage": "https://github.com/brettz9/qr-manipulation#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "5.6.0",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-node": "7.0.1",
+    "eslint-plugin-promise": "4.0.1",
+    "eslint-plugin-qunit": "^4.0.0",
+    "eslint-plugin-standard": "4.0.0",
+    "jamilih": "^0.41.0",
+    "node-static": "^0.7.11",
+    "opn-cli": "^3.1.0",
+    "query-result": "^0.2.0",
+    "rollup": "0.66.2",
+    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-terser": "^3.0.0"
+  }
+}
