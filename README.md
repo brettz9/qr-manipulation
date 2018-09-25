@@ -7,7 +7,7 @@
 [![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/brettz9/qr-manipulation.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/qr-manipulation/context:javascript)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/qr-manipulation.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/qr-manipulation/alerts)
 
-Extension for Query Result to add jQuery-type functionality.
+Extension for Query Result to add jQuery-type manipulation functionality.
 
 In very early stages...
 
