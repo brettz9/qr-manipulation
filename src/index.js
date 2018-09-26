@@ -4,11 +4,18 @@ function convertToString (type, content) {
     if (!content) {
       throw new TypeError('Cannot supply `null`');
     }
-    if (content.nodeType === 1) { // ELEMENT
+    switch (content.nodeType) {
+    case 1: { // ELEMENT
       return content.outerHTML;
     }
-    if (content.nodeType === 3) { // TEXT
+    case 3: { // TEXT
       return content.nodeValue;
+    }
+    case 11: { // DOCUMENT_FRAGMENT_NODE
+      return [...content.childNodes].reduce((s, node) => {
+        return s + convertToString(type, node);
+      }, '');
+    }
     }
     // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
     return;

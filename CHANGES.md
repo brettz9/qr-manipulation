@@ -1,5 +1,9 @@
 # qr-manipulation
 
+## 0.5.0
+
+- Enhancement: Support conversion of document fragments
+
 ## 0.4.0
 
 - Breaking change: Export former default as `manipulation` and export methods
