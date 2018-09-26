@@ -1,5 +1,9 @@
 # qr-manipulation
 
+## 0.2.1
+
+- Fix: Adhere to jQuery behavior in not cloning last item
+
 ## 0.2.0
 
 - Fix: Allow mixed string/DOM content

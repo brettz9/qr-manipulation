@@ -4,7 +4,7 @@
   (global.qrManipulation = factory());
 }(this, (function () { 'use strict';
 
-  function convertToDOM (type, content) {
+  function convertToDOM (type, content, avoidClone) {
     switch (typeof content) {
     case 'object': {
       if (!content) {
@@ -13,7 +13,7 @@
       if (content.nodeType === 1 || // ELEMENT
         content.nodeType === 3 // TEXT
       ) {
-        return content.cloneNode(true);
+        return avoidClone ? content : content.cloneNode(true);
       }
       // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
       return;
@@ -41,7 +41,9 @@
       }
       default: {
         this.forEach((node) => {
-          node[type](...args.map((content) => convertToDOM(type, content)));
+          node[type](...args.map((content, i) => {
+            return convertToDOM(type, content, i === args.length - 1);
+          }));
         });
         break;
       }
@@ -51,7 +53,7 @@
   }
 
   function index ($) {
-    ['after', 'before', 'append'].forEach((method) => {
+    ['after', 'before', 'append', 'prepend'].forEach((method) => {
       $.extend(method, insert(method));
     });
     return $;

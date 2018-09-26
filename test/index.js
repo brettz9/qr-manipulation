@@ -32,3 +32,14 @@ $('p').after(function (i, oldTxt) {
 $('body').append('<u>the</u>', document.createTextNode(' '), '<b>end</b>');
 
 $('body > *:first-child').prepend('<b>BEGIN</b>');
+
+const p = document.createElement('p');
+p.className = 'move';
+p.textContent = 'of the end';
+document.body.append(p);
+const p2 = document.createElement('p');
+p2.className = 'move';
+p2.textContent = 'was at end';
+document.body.append(p2);
+
+$('body').before($('p.move')[0], $('p.move')[1]);
