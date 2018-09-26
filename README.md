@@ -27,3 +27,8 @@ In very early stages...
 - `html(function-html)`
 - `text(content)` - Not yet supporting arrays or QueryResult objects
 - `text(function-html)`
+
+There is also an `htmlJML` method if `jml` instance is supplied as the
+second argument to `manipulation`. This will expect an array to be used as
+part of building a Jamilih document fragment. After converting from Jamilih,
+it will use the `html()` method.

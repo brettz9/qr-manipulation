@@ -107,9 +107,15 @@ export const text = insertText('textContent');
 
 const methods = {after, before, append, prepend, html, text};
 
-export const manipulation = function ($) {
+export const manipulation = function ($, jml) {
   ['after', 'before', 'append', 'prepend', 'html', 'text'].forEach((method) => {
     $.extend(method, methods[method]);
   });
+  if (jml) {
+    $.extend('htmlJML', function (arg) {
+      const frag = jml({'#': arg});
+      return html(frag);
+    });
+  }
   return $;
 };

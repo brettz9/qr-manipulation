@@ -61,8 +61,8 @@ $('body').append(div2);
 $('#anotherDiv').text(i);
 
 const div3 = document.createElement('div');
-div3.id = 'anotherDiv2';
+div3.id = 'anotherDiv3';
 $('body').append(div3);
 const frag = document.createDocumentFragment();
 frag.append('a', document.createElement('hr'), 'b');
-$('#anotherDiv').html(frag);
+$('#anotherDiv3').html(frag);

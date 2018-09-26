@@ -1,5 +1,10 @@
 # qr-manipulation
 
+## 0.6.0
+
+- Enhancement: Allow optional support of Jamilih method `htmlJML`
+- Enhancement: Support fragment with `append`
+
 ## 0.5.0
 
 - Enhancement: Support conversion of document fragments
