@@ -112,9 +112,14 @@ const manipulation = function ($, jml) {
     $.extend(method, methods[method]);
   });
   if (jml) {
-    $.extend('htmlJML', function (arg) {
-      const frag = jml({'#': arg});
-      return html.call(this, frag);
+    $.extend('jml', function (...args) {
+      this.forEach((node) => {
+        while (node.hasChildNodes()) {
+          node.firstChild.remove();
+        }
+        const n = jml(...args);
+        return append.call(this, n);
+      });
     });
   }
   return $;

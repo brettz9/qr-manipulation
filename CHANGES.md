@@ -1,5 +1,9 @@
 # qr-manipulation
 
+## 0.7.0
+
+- Breaking change: Remove `htmlJML` in favor of `jml`
+
 ## 0.6.1
 
 - Fix: Pass `this` properly for `htmlJML`
