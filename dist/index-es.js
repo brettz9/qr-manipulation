@@ -89,17 +89,20 @@ function insertText (type) {
   };
 }
 
-function index ($) {
-  ['after', 'before', 'append', 'prepend'].forEach((method) => {
-    $.extend(method, insert(method));
-  });
-  [
-    ['html', 'innerHTML'],
-    ['text', 'textContent']
-  ].forEach(([method, accessor]) => {
-    $.extend(method, insertText(accessor));
+const after = insert('after');
+const before = insert('before');
+const append = insert('append');
+const prepend = insert('prepend');
+const html = insertText('innerHTML');
+const text = insertText('textContent');
+
+const methods = {after, before, append, prepend, html, text};
+
+const manipulation = function ($) {
+  ['after', 'before', 'append', 'prepend', 'html', 'text'].forEach((method) => {
+    $.extend(method, methods[method]);
   });
   return $;
-}
+};
 
-export default index;
+export { after, before, append, prepend, html, text, manipulation };

@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global.qrManipulation = factory());
-}(this, (function () { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (factory((global.qrManipulation = {})));
+}(this, (function (exports) { 'use strict';
 
   function convertToString (type, content) {
     switch (typeof content) {
@@ -95,19 +95,30 @@
     };
   }
 
-  function index ($) {
-    ['after', 'before', 'append', 'prepend'].forEach((method) => {
-      $.extend(method, insert(method));
-    });
-    [
-      ['html', 'innerHTML'],
-      ['text', 'textContent']
-    ].forEach(([method, accessor]) => {
-      $.extend(method, insertText(accessor));
+  const after = insert('after');
+  const before = insert('before');
+  const append = insert('append');
+  const prepend = insert('prepend');
+  const html = insertText('innerHTML');
+  const text = insertText('textContent');
+
+  const methods = {after, before, append, prepend, html, text};
+
+  const manipulation = function ($) {
+    ['after', 'before', 'append', 'prepend', 'html', 'text'].forEach((method) => {
+      $.extend(method, methods[method]);
     });
     return $;
-  }
+  };
 
-  return index;
+  exports.after = after;
+  exports.before = before;
+  exports.append = append;
+  exports.prepend = prepend;
+  exports.html = html;
+  exports.text = text;
+  exports.manipulation = manipulation;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
 })));

@@ -1,5 +1,10 @@
 # qr-manipulation
 
+## 0.4.0
+
+- Breaking change: Export former default as `manipulation` and export methods
+  individually, so user could choose a subset of methods to apply themselves.
+
 ## 0.3.0
 
 - Enhancement: Support `text` and `html`

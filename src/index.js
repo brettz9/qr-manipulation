@@ -89,15 +89,18 @@ function insertText (type) {
   };
 }
 
-export default function ($) {
-  ['after', 'before', 'append', 'prepend'].forEach((method) => {
-    $.extend(method, insert(method));
-  });
-  [
-    ['html', 'innerHTML'],
-    ['text', 'textContent']
-  ].forEach(([method, accessor]) => {
-    $.extend(method, insertText(accessor));
+export const after = insert('after');
+export const before = insert('before');
+export const append = insert('append');
+export const prepend = insert('prepend');
+export const html = insertText('innerHTML');
+export const text = insertText('textContent');
+
+const methods = {after, before, append, prepend, html, text};
+
+export const manipulation = function ($) {
+  ['after', 'before', 'append', 'prepend', 'html', 'text'].forEach((method) => {
+    $.extend(method, methods[method]);
   });
   return $;
-}
+};

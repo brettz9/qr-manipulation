@@ -1,6 +1,6 @@
 import $ from '../node_modules/query-result/esm/index.js';
-// import manipulation from '../dist/index-es.js';
-import manipulation from '../src/index.js';
+// import {manipulation} from '../dist/index-es.js';
+import {manipulation} from '../src/index.js';
 
 manipulation($);
 
