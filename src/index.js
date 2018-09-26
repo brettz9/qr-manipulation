@@ -33,9 +33,11 @@ function convertToDOM (type, content, avoidClone) {
     if (!content) {
       throw new TypeError('Cannot supply `null`');
     }
-    if (content.nodeType === 1 || // ELEMENT
-      content.nodeType === 3 // TEXT
-    ) {
+    if ([
+      1, // ELEMENT
+      3, // TEXT
+      11 // Document fragment
+    ].includes(content.nodeType)) {
       return avoidClone ? content : content.cloneNode(true);
     }
     // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
