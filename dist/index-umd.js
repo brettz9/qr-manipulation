@@ -111,6 +111,71 @@
   const html = insertText('innerHTML');
   const text = insertText('textContent');
 
+  function classManipulation (type) {
+    return function (cbOrContent) {
+      switch (typeof cbOrContent) {
+      case 'function': {
+        this.forEach((node, i) => {
+          const ret = cbOrContent.call(this, i, node.className);
+          node.classList[type](...ret.split(' '));
+        });
+        break;
+      }
+      default: {
+        if (type === 'remove' && !cbOrContent) {
+          this.forEach((node) => {
+            node.className = '';
+          });
+          break;
+        }
+        this.forEach((node) => {
+          node.classList[type](...cbOrContent.split(' '));
+        });
+        break;
+      }
+      }
+      return this;
+    };
+  }
+
+  const addClass = classManipulation('add');
+  const removeClass = classManipulation('remove');
+  const hasClass = function (className) {
+    return this.some((node) => {
+      return node.classList.contains(className);
+    });
+  };
+  const toggleClass = function (classNameOrCb, state) {
+    switch (typeof cbOrContent) {
+    case 'function': {
+      if (typeof state === 'boolean') {
+        this.forEach((node, i) => {
+          const ret = classNameOrCb.call(this, i, node.className, state);
+          node.classList.toggle(...ret.split(' '), state);
+        });
+      } else {
+        this.forEach((node, i) => {
+          const ret = classNameOrCb.call(this, i, node.className, state);
+          node.classList.toggle(...ret.split(' '));
+        });
+      }
+      break;
+    }
+    case 'string': {
+      if (typeof state === 'boolean') {
+        this.forEach((node) => {
+          node.classList.toggle(...classNameOrCb.split(' '), state);
+        });
+      } else {
+        this.forEach((node) => {
+          node.classList.toggle(...classNameOrCb.split(' '));
+        });
+      }
+      break;
+    }
+    }
+  };
+
   const methods = {after, before, append, prepend, html, text};
 
   const manipulation = function ($, jml) {
@@ -137,6 +202,10 @@
   exports.prepend = prepend;
   exports.html = html;
   exports.text = text;
+  exports.addClass = addClass;
+  exports.removeClass = removeClass;
+  exports.hasClass = hasClass;
+  exports.toggleClass = toggleClass;
   exports.manipulation = manipulation;
 
   Object.defineProperty(exports, '__esModule', { value: true });

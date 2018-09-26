@@ -28,6 +28,16 @@ In very early stages...
 - `text(content)` - Not yet supporting arrays or QueryResult objects
 - `text(function-html)`
 
+- `hasClass(className)`
+- `addClass(className)`
+- `addClass(function)`
+- `removeClass([className])`
+- `removeClass(function)`
+- `toggleClass(className)`
+- `toggleClass(className, state)`
+- `toggleClass(function [, state])`
+
+
 There is also an `jml` method if a `jml` instance is supplied as the
 second argument to `manipulation`. This will expect an array to be used as
 part of building a Jamilih document fragment. After converting from Jamilih,
