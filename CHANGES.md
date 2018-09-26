@@ -1,5 +1,9 @@
 # qr-manipulation
 
+## 0.6.1
+
+- Fix: Pass `this` properly for `htmlJML`
+
 ## 0.6.0
 
 - Enhancement: Allow optional support of Jamilih method `htmlJML`

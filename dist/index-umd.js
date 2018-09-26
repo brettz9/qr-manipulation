@@ -120,7 +120,7 @@
     if (jml) {
       $.extend('htmlJML', function (arg) {
         const frag = jml({'#': arg});
-        return html(frag);
+        return html.call(this, frag);
       });
     }
     return $;
