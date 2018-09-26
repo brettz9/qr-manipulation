@@ -21,7 +21,7 @@
     case 'string': {
       const div = document.createElement('div');
       div.innerHTML = content;
-      return div.firstElementChild;
+      return div.firstElementChild || div.firstChild;
     }
     default:
       throw new TypeError('Bad content for ' + type);

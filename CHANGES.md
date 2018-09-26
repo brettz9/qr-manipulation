@@ -1,5 +1,9 @@
 # qr-manipulation
 
+## 0.2.2
+
+- Fix: Allow strings to be text nodes
+
 ## 0.2.1
 
 - Fix: Adhere to jQuery behavior in not cloning last item

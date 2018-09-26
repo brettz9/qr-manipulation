@@ -29,7 +29,7 @@ $('p').after(function (i, oldTxt) {
 }).after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
 ).after(document.createTextNode('----'), document.createElement('hr'));
 
-$('body').append('<u>the</u>', document.createTextNode(' '), '<b>end</b>');
+$('body').append('the', document.createTextNode(' '), '<b>end</b>');
 
 $('body > *:first-child').prepend('<b>BEGIN</b>');
 
