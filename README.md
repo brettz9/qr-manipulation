@@ -22,3 +22,8 @@ In very early stages...
 - `after(function-html)`
 - `before(content [, content])` - Not yet supporting arrays or QueryResult objects
 - `before(function-html)`
+
+- `html(content)` - Not yet supporting arrays or QueryResult objects
+- `html(function-html)`
+- `text(content)` - Not yet supporting arrays or QueryResult objects
+- `text(function-html)`

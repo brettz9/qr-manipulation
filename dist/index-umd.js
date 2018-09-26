@@ -4,6 +4,28 @@
   (global.qrManipulation = factory());
 }(this, (function () { 'use strict';
 
+  function convertToString (type, content) {
+    switch (typeof content) {
+    case 'object': {
+      if (!content) {
+        throw new TypeError('Cannot supply `null`');
+      }
+      if (content.nodeType === 1) { // ELEMENT
+        return content.outerHTML;
+      }
+      if (content.nodeType === 3) { // TEXT
+        return content.nodeValue;
+      }
+      // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
+      return;
+    }
+    case 'string': {
+      return content;
+    }
+    default:
+      throw new TypeError('Bad content for ' + type + '; type: ' + typeof content);
+    }
+  }
   function convertToDOM (type, content, avoidClone) {
     switch (typeof content) {
     case 'object': {
@@ -24,7 +46,7 @@
       return div.firstElementChild || div.firstChild;
     }
     default:
-      throw new TypeError('Bad content for ' + type);
+      throw new TypeError('Bad content for ' + type + '; type: ' + typeof content);
     }
   }
 
@@ -52,9 +74,36 @@
     };
   }
 
+  function insertText (type) {
+    return function (cbOrContent) {
+      switch (typeof cbOrContent) {
+      case 'function': {
+        this.forEach((node, i) => {
+          const ret = cbOrContent.call(this, i, node[type]);
+          node[type] = convertToString(type, ret);
+        });
+        break;
+      }
+      default: {
+        this.forEach((node) => {
+          node[type] = convertToString(type, cbOrContent);
+        });
+        break;
+      }
+      }
+      return this;
+    };
+  }
+
   function index ($) {
     ['after', 'before', 'append', 'prepend'].forEach((method) => {
       $.extend(method, insert(method));
+    });
+    [
+      ['html', 'innerHTML'],
+      ['text', 'textContent']
+    ].forEach(([method, accessor]) => {
+      $.extend(method, insertText(accessor));
     });
     return $;
   }

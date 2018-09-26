@@ -43,3 +43,19 @@ p2.textContent = 'was at end';
 document.body.append(p2);
 
 $('body').before($('p.move')[0], $('p.move')[1]);
+
+const div = document.createElement('div');
+div.className = 'aDiv';
+
+const i = document.createElement('i');
+i.textContent = 'another end';
+
+$('body').append(div);
+$('body').append(div.cloneNode(true));
+$('.aDiv').html(i);
+
+const div2 = document.createElement('div');
+div2.id = 'anotherDiv';
+$('body').append(div2);
+
+$('#anotherDiv').text(i);

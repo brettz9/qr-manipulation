@@ -1,5 +1,10 @@
 # qr-manipulation
 
+## 0.3.0
+
+- Enhancement: Support `text` and `html`
+- Enhancement: More detail in error reporting
+
 ## 0.2.2
 
 - Fix: Allow strings to be text nodes
