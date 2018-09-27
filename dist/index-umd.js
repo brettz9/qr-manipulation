@@ -260,6 +260,12 @@
 
   var appendTo = insertTo('append');
   var prependTo = insertTo('prepend');
+  var clone = function clone() {
+    return this.map(function (node) {
+      // Still a QueryResult with such a map
+      return node.cloneNode(true);
+    });
+  };
 
   function classAttManipulation(type) {
     return function (cbOrContent) {
@@ -437,6 +443,7 @@
     prepend: prepend,
     appendTo: appendTo,
     prependTo: prependTo,
+    clone: clone,
     html: html,
     text: text,
     addClass: addClass,
@@ -447,7 +454,7 @@
   };
 
   var manipulation = function manipulation($, jml) {
-    ['after', 'before', 'append', 'prepend', 'appendTo', 'prependTo', 'html', 'text', 'addClass', 'hasClass', 'removeClass', 'toggleClass', 'attr'].forEach(function (method) {
+    ['after', 'before', 'append', 'prepend', 'appendTo', 'prependTo', 'clone', 'html', 'text', 'addClass', 'hasClass', 'removeClass', 'toggleClass', 'attr'].forEach(function (method) {
       $.extend(method, methods[method]);
     });
 
@@ -481,6 +488,7 @@
   exports.text = text;
   exports.appendTo = appendTo;
   exports.prependTo = prependTo;
+  exports.clone = clone;
   exports.addClass = addClass;
   exports.removeClass = removeClass;
   exports.hasClass = hasClass;

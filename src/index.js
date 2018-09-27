@@ -146,6 +146,12 @@ function insertTo (type) {
 export const appendTo = insertTo('append');
 export const prependTo = insertTo('prepend');
 
+export const clone = function () {
+  return this.map((node) => { // Still a QueryResult with such a map
+    return node.cloneNode(true);
+  });
+};
+
 function classAttManipulation (type) {
   return function (cbOrContent) {
     switch (typeof cbOrContent) {
@@ -270,6 +276,7 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
 const methods = {
   after, before, append, prepend,
   appendTo, prependTo,
+  clone,
   html, text,
   addClass, hasClass, removeClass, toggleClass,
   attr
@@ -279,6 +286,7 @@ export const manipulation = function ($, jml) {
   [
     'after', 'before', 'append', 'prepend',
     'appendTo', 'prependTo',
+    'clone',
     'html', 'text',
     'addClass', 'hasClass', 'removeClass', 'toggleClass',
     'attr'

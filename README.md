@@ -25,6 +25,9 @@ In very early stages...
     (or assumption thereof) and/or QR mutual dependency); just wrap
     `target` in QR
 
+- `clone()` - Does not support optional `withDataAndEvents` and
+  `deepWithDataAndEvents` arguments
+
 - `after(content [, content])`
 - `after(function-html)`
 - `before(content [, content])`
