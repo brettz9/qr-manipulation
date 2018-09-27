@@ -199,8 +199,12 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
     }
     case 'object': {
       if (attributeNameOrAtts) {
-        // Todo
-        return;
+        this.forEach((node, i) => {
+          Object.entries(attributeNameOrAtts).forEach(([att, val]) => {
+            node.setAttribute(att, val);
+          });
+        });
+        return this;
       }
     } // Fallthrough
     default: {
@@ -208,15 +212,33 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
     }
     }
   }
-  // Todo
   switch (typeof valueOrCb) {
   case 'function': {
+    this.forEach((node, i) => {
+      const ret = valueOrCb.call(this, i, node.getAttribute(valueOrCb));
+      node.setAttribute(attributeNameOrAtts, ret);
+    });
     break;
   }
   case 'string': {
+    this.forEach((node, i) => {
+      node.setAttribute(attributeNameOrAtts, valueOrCb);
+    });
     break;
   }
+  case 'object': {
+    if (!valueOrCb) {
+      this.forEach((node, i) => {
+        node.removeAttribute(attributeNameOrAtts);
+      });
+      break;
+    }
+  } // Fallthrough
+  default: {
+    throw new TypeError('Unexpected type for attribute name: ' + typeof attributeNameOrAtts);
   }
+  }
+  return this;
 };
 
 const methods = {

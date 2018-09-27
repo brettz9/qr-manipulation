@@ -18,6 +18,10 @@
     return _typeof(obj);
   }
 
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -30,12 +34,46 @@
     }
   }
 
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
   function _iterableToArray(iter) {
     if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
 
+  function _iterableToArrayLimit(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
   function _nonIterableSpread() {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
   function convertToString(content, type) {
@@ -296,6 +334,8 @@
     }
   };
   var attr = function attr(attributeNameOrAtts, valueOrCb) {
+    var _this5 = this;
+
     if (valueOrCb === undefined) {
       switch (_typeof(attributeNameOrAtts)) {
         case 'string':
@@ -306,8 +346,16 @@
         case 'object':
           {
             if (attributeNameOrAtts) {
-              // Todo
-              return;
+              this.forEach(function (node, i) {
+                Object.entries(attributeNameOrAtts).forEach(function (_ref) {
+                  var _ref2 = _slicedToArray(_ref, 2),
+                      att = _ref2[0],
+                      val = _ref2[1];
+
+                  node.setAttribute(att, val);
+                });
+              });
+              return this;
             }
           }
         // Fallthrough
@@ -317,20 +365,44 @@
             throw new TypeError('Unexpected type for attribute name: ' + _typeof(attributeNameOrAtts));
           }
       }
-    } // Todo
-
+    }
 
     switch (_typeof(valueOrCb)) {
       case 'function':
         {
+          this.forEach(function (node, i) {
+            var ret = valueOrCb.call(_this5, i, node.getAttribute(valueOrCb));
+            node.setAttribute(attributeNameOrAtts, ret);
+          });
           break;
         }
 
       case 'string':
         {
+          this.forEach(function (node, i) {
+            node.setAttribute(attributeNameOrAtts, valueOrCb);
+          });
           break;
         }
+
+      case 'object':
+        {
+          if (!valueOrCb) {
+            this.forEach(function (node, i) {
+              node.removeAttribute(attributeNameOrAtts);
+            });
+            break;
+          }
+        }
+      // Fallthrough
+
+      default:
+        {
+          throw new TypeError('Unexpected type for attribute name: ' + _typeof(attributeNameOrAtts));
+        }
     }
+
+    return this;
   };
   var methods = {
     after: after,
@@ -353,7 +425,7 @@
 
     if (jml) {
       $.extend('jml', function () {
-        var _this5 = this;
+        var _this6 = this;
 
         for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           args[_key2] = arguments[_key2];
@@ -365,7 +437,7 @@
           }
 
           var n = jml.apply(void 0, args);
-          return append.call(_this5, n);
+          return append.call(_this6, n);
         });
       });
     }
