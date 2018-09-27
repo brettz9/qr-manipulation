@@ -66,3 +66,9 @@ $('body').append(div3);
 const frag = document.createDocumentFragment();
 frag.append('a', document.createElement('hr'), 'b');
 $('#anotherDiv3').html(frag);
+
+const div4 = document.createElement('div');
+div4.id = 'anotherDiv4';
+$('body').append(div4);
+const qr = $('hr');
+$('#anotherDiv4').html([document.createElement('hr'), ...qr]);

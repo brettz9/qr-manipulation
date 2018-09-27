@@ -1,4 +1,4 @@
-function convertToString (type, content) {
+function convertToString (content, type) {
   switch (typeof content) {
   case 'object': {
     if (!content) {
@@ -13,11 +13,19 @@ function convertToString (type, content) {
     }
     case 11: { // DOCUMENT_FRAGMENT_NODE
       return [...content.childNodes].reduce((s, node) => {
-        return s + convertToString(type, node);
+        return s + convertToString(node, type);
       }, '');
     }
+    case undefined: {
+      // Array of nodes, QueryResult objects
+      // if (Array.isArray(content)) {
+      if (typeof content.reduce === 'function') {
+        return content.reduce((s, node) => {
+          return s + convertToString(node, type);
+        }, '');
+      }
     }
-    // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
+    }
     return;
   }
   case 'string': {
@@ -27,7 +35,7 @@ function convertToString (type, content) {
     throw new TypeError('Bad content for ' + type + '; type: ' + typeof content);
   }
 }
-function convertToDOM (type, content, avoidClone) {
+function convertToDOM (content, type, avoidClone) {
   switch (typeof content) {
   case 'object': {
     if (!content) {
@@ -40,8 +48,19 @@ function convertToDOM (type, content, avoidClone) {
     ].includes(content.nodeType)) {
       return avoidClone ? content : content.cloneNode(true);
     }
-    // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
-    return;
+
+    if (typeof content.reduce !== 'function') {
+    // if (Array.isArray(content)) {
+      throw new TypeError('Unrecognized type of object for conversion to DOM');
+    }
+
+    // Array of nodes, QueryResult objects
+    return content.reduce((frag, node) => {
+      // We could use `append` to allow text strings, but would confuse
+      //   things with strings otherwise treated as HTML (see below)
+      frag.appendChild(node);
+      return frag;
+    }, document.createDocumentFragment());
   }
   case 'string': {
     const div = document.createElement('div');
@@ -67,7 +86,7 @@ function insert (type) {
     default: {
       this.forEach((node) => {
         node[type](...args.map((content, i) => {
-          return convertToDOM(type, content, i === args.length - 1);
+          return convertToDOM(content, type, i === args.length - 1);
         }));
       });
       break;
@@ -83,13 +102,13 @@ function insertText (type) {
     case 'function': {
       this.forEach((node, i) => {
         const ret = cbOrContent.call(this, i, node[type]);
-        node[type] = convertToString(type, ret);
+        node[type] = convertToString(ret, type);
       });
       break;
     }
     default: {
       this.forEach((node) => {
-        node[type] = convertToString(type, cbOrContent);
+        node[type] = convertToString(cbOrContent, type);
       });
       break;
     }
@@ -105,7 +124,7 @@ export const prepend = insert('prepend');
 export const html = insertText('innerHTML');
 export const text = insertText('textContent');
 
-function classManipulation (type) {
+function classAttManipulation (type) {
   return function (cbOrContent) {
     switch (typeof cbOrContent) {
     case 'function': {
@@ -132,8 +151,8 @@ function classManipulation (type) {
   };
 }
 
-export const addClass = classManipulation('add');
-export const removeClass = classManipulation('remove');
+export const addClass = classAttManipulation('add');
+export const removeClass = classAttManipulation('remove');
 export const hasClass = function (className) {
   return this.some((node) => {
     return node.classList.contains(className);
@@ -170,10 +189,50 @@ export const toggleClass = function (classNameOrCb, state) {
   }
 };
 
-const methods = {after, before, append, prepend, html, text};
+export const attr = function (attributeNameOrAtts, valueOrCb) {
+  if (valueOrCb === undefined) {
+    switch (typeof attributeNameOrAtts) {
+    case 'string': {
+      return this[0].hasAttribute(attributeNameOrAtts)
+        ? this[0].getAttribute(attributeNameOrAtts)
+        : undefined;
+    }
+    case 'object': {
+      if (attributeNameOrAtts) {
+        // Todo
+        return;
+      }
+    } // Fallthrough
+    default: {
+      throw new TypeError('Unexpected type for attribute name: ' + typeof attributeNameOrAtts);
+    }
+    }
+  }
+  // Todo
+  switch (typeof valueOrCb) {
+  case 'function': {
+    break;
+  }
+  case 'string': {
+    break;
+  }
+  }
+};
+
+const methods = {
+  after, before, append, prepend,
+  html, text,
+  addClass, hasClass, removeClass, toggleClass,
+  attr
+};
 
 export const manipulation = function ($, jml) {
-  ['after', 'before', 'append', 'prepend', 'html', 'text'].forEach((method) => {
+  [
+    'after', 'before', 'append', 'prepend',
+    'html', 'text',
+    'addClass', 'hasClass', 'removeClass', 'toggleClass',
+    'attr'
+  ].forEach((method) => {
     $.extend(method, methods[method]);
   });
   if (jml) {

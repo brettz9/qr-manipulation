@@ -13,19 +13,19 @@ In very early stages...
 
 ## Methods
 
-- `append(content [, content])` - Not yet supporting arrays or QueryResult objects
+- `append(content [, content])`
 - `append(function-html)`
-- `prepend(content [, content])` - Not yet supporting arrays or QueryResult objects
+- `prepend(content [, content])`
 - `prepend(function-html)`
 
-- `after(content [, content])` - Not yet supporting arrays or QueryResult objects
+- `after(content [, content])`
 - `after(function-html)`
-- `before(content [, content])` - Not yet supporting arrays or QueryResult objects
+- `before(content [, content])`
 - `before(function-html)`
 
-- `html(content)` - Not yet supporting arrays or QueryResult objects
+- `html(content)`
 - `html(function-html)`
-- `text(content)` - Not yet supporting arrays or QueryResult objects
+- `text(content)`
 - `text(function-html)`
 
 - `hasClass(className)`
@@ -36,6 +36,11 @@ In very early stages...
 - `toggleClass(className)`
 - `toggleClass(className, state)`
 - `toggleClass(function [, state])`
+
+- `attr(attributeName)`
+- `attr(attributes)`
+- `attr(attributeName, value)`
+- `attr(attributeName, function)`
 
 
 There is also an `jml` method if a `jml` instance is supplied as the
