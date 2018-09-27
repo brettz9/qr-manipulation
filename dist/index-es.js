@@ -32,7 +32,7 @@ function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
-function convertToString(type, content) {
+function convertToString(content, type) {
   switch (_typeof(content)) {
     case 'object':
       {
@@ -57,11 +57,21 @@ function convertToString(type, content) {
             {
               // DOCUMENT_FRAGMENT_NODE
               return _toConsumableArray(content.childNodes).reduce(function (s, node) {
-                return s + convertToString(type, node);
+                return s + convertToString(node, type);
               }, '');
             }
-        } // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
 
+          case undefined:
+            {
+              // Array of nodes, QueryResult objects
+              // if (Array.isArray(content)) {
+              if (typeof content.reduce === 'function') {
+                return content.reduce(function (s, node) {
+                  return s + convertToString(node, type);
+                }, '');
+              }
+            }
+        }
 
         return;
       }
@@ -76,7 +86,7 @@ function convertToString(type, content) {
   }
 }
 
-function convertToDOM(type, content, avoidClone) {
+function convertToDOM(content, type, avoidClone) {
   switch (_typeof(content)) {
     case 'object':
       {
@@ -89,10 +99,20 @@ function convertToDOM(type, content, avoidClone) {
         11 // Document fragment
         ].includes(content.nodeType)) {
           return avoidClone ? content : content.cloneNode(true);
-        } // Todo: array of elements/text nodes (or Jamilih array?), QueryResult objects?
+        }
+
+        if (typeof content.reduce !== 'function') {
+          // if (Array.isArray(content)) {
+          throw new TypeError('Unrecognized type of object for conversion to DOM');
+        } // Array of nodes, QueryResult objects
 
 
-        return;
+        return content.reduce(function (frag, node) {
+          // We could use `append` to allow text strings, but would confuse
+          //   things with strings otherwise treated as HTML (see below)
+          frag.appendChild(node);
+          return frag;
+        }, document.createDocumentFragment());
       }
 
     case 'string':
@@ -131,7 +151,7 @@ function insert(type) {
         {
           this.forEach(function (node) {
             node[type].apply(node, _toConsumableArray(args.map(function (content, i) {
-              return convertToDOM(type, content, i === args.length - 1);
+              return convertToDOM(content, type, i === args.length - 1);
             })));
           });
           break;
@@ -151,7 +171,7 @@ function insertText(type) {
         {
           this.forEach(function (node, i) {
             var ret = cbOrContent.call(_this2, i, node[type]);
-            node[type] = convertToString(type, ret);
+            node[type] = convertToString(ret, type);
           });
           break;
         }
@@ -159,7 +179,7 @@ function insertText(type) {
       default:
         {
           this.forEach(function (node) {
-            node[type] = convertToString(type, cbOrContent);
+            node[type] = convertToString(cbOrContent, type);
           });
           break;
         }
@@ -176,7 +196,7 @@ var prepend = insert('prepend');
 var html = insertText('innerHTML');
 var text = insertText('textContent');
 
-function classManipulation(type) {
+function classAttManipulation(type) {
   return function (cbOrContent) {
     var _this3 = this;
 
@@ -215,8 +235,8 @@ function classManipulation(type) {
   };
 }
 
-var addClass = classManipulation('add');
-var removeClass = classManipulation('remove');
+var addClass = classAttManipulation('add');
+var removeClass = classAttManipulation('remove');
 var hasClass = function hasClass(className) {
   return this.some(function (node) {
     return node.classList.contains(className);
@@ -269,17 +289,59 @@ var toggleClass = function toggleClass(classNameOrCb, state) {
       }
   }
 };
+var attr = function attr(attributeNameOrAtts, valueOrCb) {
+  if (valueOrCb === undefined) {
+    switch (_typeof(attributeNameOrAtts)) {
+      case 'string':
+        {
+          return this[0].hasAttribute(attributeNameOrAtts) ? this[0].getAttribute(attributeNameOrAtts) : undefined;
+        }
+
+      case 'object':
+        {
+          if (attributeNameOrAtts) {
+            // Todo
+            return;
+          }
+        }
+      // Fallthrough
+
+      default:
+        {
+          throw new TypeError('Unexpected type for attribute name: ' + _typeof(attributeNameOrAtts));
+        }
+    }
+  } // Todo
+
+
+  switch (_typeof(valueOrCb)) {
+    case 'function':
+      {
+        break;
+      }
+
+    case 'string':
+      {
+        break;
+      }
+  }
+};
 var methods = {
   after: after,
   before: before,
   append: append,
   prepend: prepend,
   html: html,
-  text: text
+  text: text,
+  addClass: addClass,
+  hasClass: hasClass,
+  removeClass: removeClass,
+  toggleClass: toggleClass,
+  attr: attr
 };
 
 var manipulation = function manipulation($, jml) {
-  ['after', 'before', 'append', 'prepend', 'html', 'text'].forEach(function (method) {
+  ['after', 'before', 'append', 'prepend', 'html', 'text', 'addClass', 'hasClass', 'removeClass', 'toggleClass', 'attr'].forEach(function (method) {
     $.extend(method, methods[method]);
   });
 
@@ -305,4 +367,4 @@ var manipulation = function manipulation($, jml) {
   return $;
 };
 
-export { after, before, append, prepend, html, text, addClass, removeClass, hasClass, toggleClass, manipulation };
+export { after, before, append, prepend, html, text, addClass, removeClass, hasClass, toggleClass, attr, manipulation };

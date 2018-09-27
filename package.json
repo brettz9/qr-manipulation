@@ -12,7 +12,8 @@
     "eslint": "eslint .",
     "rollup": "rollup -c",
     "start": "echo \"Open file to http://localhost:8007/test/\" && static -p 8007",
-    "test": "npm run eslint && npm run rollup && opn http://localhost:8007/test/ && static -p 8007"
+    "browser-test": "npm run eslint && npm run rollup && opn http://localhost:8007/test/ && static -p 8007",
+    "test": "echo \"No Node tests yet\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -48,6 +49,7 @@
     "query-result": "^1.0.3",
     "rollup": "0.66.2",
     "rollup-plugin-babel": "^4.0.3",
-    "rollup-plugin-terser": "^3.0.0"
+    "rollup-plugin-terser": "^3.0.0",
+    "tressa": "https://github.com/brettz9/tressa#browser-tests"
   }
 }
