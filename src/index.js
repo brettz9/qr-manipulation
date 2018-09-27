@@ -216,7 +216,11 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
   case 'function': {
     this.forEach((node, i) => {
       const ret = valueOrCb.call(this, i, node.getAttribute(valueOrCb));
-      node.setAttribute(attributeNameOrAtts, ret);
+      if (ret === null) {
+        node.removeAttribute(attributeNameOrAtts);
+      } else {
+        node.setAttribute(attributeNameOrAtts, ret);
+      }
     });
     break;
   }
