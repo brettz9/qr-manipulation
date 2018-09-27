@@ -1,3 +1,5 @@
+import tressa from '../node_modules/tressa/tressa-es.js';
+
 import $ from '../node_modules/query-result/esm/index.js';
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
@@ -17,6 +19,8 @@ $('p').map((p) => {
   console.log('ppp', p);
 })
 */
+
+console.log('tressa', tressa);
 
 $('p').after(function (i, oldTxt) {
   const node = document.createElement('div');
