@@ -18,6 +18,13 @@ In very early stages...
 - `prepend(content [, content])`
 - `prepend(function-html)`
 
+- `appendTo(target)` - Does not support selectors (would require context
+    (or assumption thereof) and/or QR mutual dependency); just wrap
+    `target` in QR
+- `prependTo(target)` - Does not support selectors (would require context
+    (or assumption thereof) and/or QR mutual dependency); just wrap
+    `target` in QR
+
 - `after(content [, content])`
 - `after(function-html)`
 - `before(content [, content])`

@@ -140,17 +140,16 @@ function convertToDOM(content, type, avoidClone) {
         }
 
         if (typeof content.reduce !== 'function') {
-          // if (Array.isArray(content)) {
           throw new TypeError('Unrecognized type of object for conversion to DOM');
         } // Array of nodes, QueryResult objects
 
 
-        return content.reduce(function (frag, node) {
-          // We could use `append` to allow text strings, but would confuse
-          //   things with strings otherwise treated as HTML (see below)
-          frag.appendChild(node);
-          return frag;
-        }, document.createDocumentFragment());
+        return avoidClone ? content.map(function (node, i, arr) {
+          // We still clone for all but the last
+          return i === arr.length - 1 ? node : node.cloneNode(true);
+        }) : content.map(function (node) {
+          return node.cloneNode(true);
+        });
       }
 
     case 'string':
@@ -188,7 +187,7 @@ function insert(type) {
       default:
         {
           this.forEach(function (node) {
-            node[type].apply(node, _toConsumableArray(args.map(function (content, i) {
+            node[type].apply(node, _toConsumableArray(args.flatMap(function (content, i) {
               return convertToDOM(content, type, i === args.length - 1);
             })));
           });
@@ -233,6 +232,28 @@ var append = insert('append');
 var prepend = insert('prepend');
 var html = insertText('innerHTML');
 var text = insertText('textContent');
+
+function insertTo(type) {
+  return function (target) {
+    var toType = type + 'To';
+    this.forEach(function (node) {
+      // We could allow selectors, but then we'd need QueryResult as
+      //   a mutual dependency and we wouldn't know which context (or
+      // would need to assume global context and/or just use
+      // `document.querySelectorAll` but then we'd miss the optimization
+      // of its `:first-child` and behave differently in different contexts)
+      // if (typeof target === 'string' && target.charAt(0) !== '<') {
+      target = Array.isArray(target) ? target : [target];
+      node[type].apply(node, _toConsumableArray(target.flatMap(function (content, i, arr) {
+        return convertToDOM(content, toType, i === arr.length - 1);
+      })));
+    });
+    return this;
+  };
+}
+
+var appendTo = insertTo('append');
+var prependTo = insertTo('prepend');
 
 function classAttManipulation(type) {
   return function (cbOrContent) {
@@ -366,7 +387,12 @@ var attr = function attr(attributeNameOrAtts, valueOrCb) {
       {
         this.forEach(function (node, i) {
           var ret = valueOrCb.call(_this5, i, node.getAttribute(valueOrCb));
-          node.setAttribute(attributeNameOrAtts, ret);
+
+          if (ret === null) {
+            node.removeAttribute(attributeNameOrAtts);
+          } else {
+            node.setAttribute(attributeNameOrAtts, ret);
+          }
         });
         break;
       }
@@ -403,6 +429,8 @@ var methods = {
   before: before,
   append: append,
   prepend: prepend,
+  appendTo: appendTo,
+  prependTo: prependTo,
   html: html,
   text: text,
   addClass: addClass,
@@ -413,7 +441,7 @@ var methods = {
 };
 
 var manipulation = function manipulation($, jml) {
-  ['after', 'before', 'append', 'prepend', 'html', 'text', 'addClass', 'hasClass', 'removeClass', 'toggleClass', 'attr'].forEach(function (method) {
+  ['after', 'before', 'append', 'prepend', 'appendTo', 'prependTo', 'html', 'text', 'addClass', 'hasClass', 'removeClass', 'toggleClass', 'attr'].forEach(function (method) {
     $.extend(method, methods[method]);
   });
 
@@ -439,4 +467,4 @@ var manipulation = function manipulation($, jml) {
   return $;
 };
 
-export { after, before, append, prepend, html, text, addClass, removeClass, hasClass, toggleClass, attr, manipulation };
+export { after, before, append, prepend, html, text, appendTo, prependTo, addClass, removeClass, hasClass, toggleClass, attr, manipulation };

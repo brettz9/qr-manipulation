@@ -50,17 +50,17 @@ function convertToDOM (content, type, avoidClone) {
     }
 
     if (typeof content.reduce !== 'function') {
-    // if (Array.isArray(content)) {
       throw new TypeError('Unrecognized type of object for conversion to DOM');
     }
 
     // Array of nodes, QueryResult objects
-    return content.reduce((frag, node) => {
-      // We could use `append` to allow text strings, but would confuse
-      //   things with strings otherwise treated as HTML (see below)
-      frag.appendChild(node);
-      return frag;
-    }, document.createDocumentFragment());
+    return avoidClone
+      ? content.map((node, i, arr) => { // We still clone for all but the last
+        return i === arr.length - 1 ? node : node.cloneNode(true);
+      })
+      : content.map((node) => {
+        return node.cloneNode(true);
+      });
   }
   case 'string': {
     const div = document.createElement('div');
@@ -85,7 +85,7 @@ function insert (type) {
     }
     default: {
       this.forEach((node) => {
-        node[type](...args.map((content, i) => {
+        node[type](...args.flatMap((content, i) => {
           return convertToDOM(content, type, i === args.length - 1);
         }));
       });
@@ -123,6 +123,28 @@ export const append = insert('append');
 export const prepend = insert('prepend');
 export const html = insertText('innerHTML');
 export const text = insertText('textContent');
+
+function insertTo (type) {
+  return function (target) {
+    const toType = type + 'To';
+    this.forEach((node) => {
+      // We could allow selectors, but then we'd need QueryResult as
+      //   a mutual dependency and we wouldn't know which context (or
+      // would need to assume global context and/or just use
+      // `document.querySelectorAll` but then we'd miss the optimization
+      // of its `:first-child` and behave differently in different contexts)
+      // if (typeof target === 'string' && target.charAt(0) !== '<') {
+      target = Array.isArray(target) ? target : [target];
+      node[type](...target.flatMap((content, i, arr) => {
+        return convertToDOM(content, toType, i === arr.length - 1);
+      }));
+    });
+    return this;
+  };
+}
+
+export const appendTo = insertTo('append');
+export const prependTo = insertTo('prepend');
 
 function classAttManipulation (type) {
   return function (cbOrContent) {
@@ -247,6 +269,7 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
 
 const methods = {
   after, before, append, prepend,
+  appendTo, prependTo,
   html, text,
   addClass, hasClass, removeClass, toggleClass,
   attr
@@ -255,6 +278,7 @@ const methods = {
 export const manipulation = function ($, jml) {
   [
     'after', 'before', 'append', 'prepend',
+    'appendTo', 'prependTo',
     'html', 'text',
     'addClass', 'hasClass', 'removeClass', 'toggleClass',
     'attr'
