@@ -1,12 +1,15 @@
 import $ from '../node_modules/query-result/esm/index.js';
-import test from '../node_modules/tressa/esm/index.js';
+import test, {addHTMLReporter} from '../node_modules/tressa/esm/index.js';
 import htmlReporter from '../node_modules/tressa/reporters/HTMLReporter.js';
 
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
 
-htmlReporter();
 manipulation($);
+
+const results = $('#results')[0];
+addHTMLReporter(results);
+htmlReporter(results);
 
 // Todo: Move to traversal
 $.extend('each', function each (cb, thisObj) {
@@ -24,9 +27,9 @@ $('p').map((p) => {
 })
 */
 test.title('qr manipulation tests');
-/*
 test(1, 'ok');
 test(0, 'failed');
+/*
 test.log('abce\n### def');
 await test.async((done) => {
   setTimeout(() => {
@@ -37,6 +40,8 @@ await test.async((done) => {
 */
 
 test.end();
+
+const context = $('#test-area');
 
 $('p').after(function (i, oldTxt) {
   const node = document.createElement('div');
@@ -49,20 +54,20 @@ $('p').after(function (i, oldTxt) {
 }).after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
 ).after(document.createTextNode('----'), document.createElement('hr'));
 
-$('body').append('the', document.createTextNode(' '), '<b>end</b>');
+context.append('the', document.createTextNode(' '), '<b>end</b>');
 
-$('body > *:first-child').prepend('<b>BEGIN</b>');
+$('#test-area > *:first-child').prepend('<b>BEGIN</b>');
 
 const p = document.createElement('p');
 p.className = 'move';
 p.textContent = 'of the end';
-document.body.append(p);
+context[0].append(p);
 const p2 = document.createElement('p');
 p2.className = 'move';
 p2.textContent = 'was at end';
-document.body.append(p2);
+context[0].append(p2);
 
-$('body').before($('p.move')[0], $('p.move')[1]);
+context.before($('p.move')[0], $('p.move')[1]);
 
 const div = document.createElement('div');
 div.className = 'aDiv';
@@ -70,26 +75,26 @@ div.className = 'aDiv';
 const i = document.createElement('i');
 i.textContent = 'another end';
 
-$('body').append(div);
-$('body').append(div.cloneNode(true));
+context.append(div);
+context.append(div.cloneNode(true));
 $('.aDiv').html(i);
 
 const div2 = document.createElement('div');
 div2.id = 'anotherDiv';
-$('body').append(div2);
+context.append(div2);
 
 $('#anotherDiv').text(i);
 
 const div3 = document.createElement('div');
 div3.id = 'anotherDiv3';
-$('body').append(div3);
+context.append(div3);
 const frag = document.createDocumentFragment();
 frag.append('a', document.createElement('hr'), 'b');
 $('#anotherDiv3').html(frag);
 
 const div4 = document.createElement('div');
 div4.id = 'anotherDiv4';
-$('body').append(div4);
+context.append(div4);
 const qr = $('hr');
 $('#anotherDiv4').html([document.createElement('hr'), ...qr]);
 })();
