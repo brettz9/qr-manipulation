@@ -50,6 +50,6 @@
     "rollup": "0.66.2",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-terser": "^3.0.0",
-    "tressa": "https://github.com/brettz9/tressa#browser-tests"
+    "tressa": "https://github.com/brettz9/tressa#reporter"
   }
 }

@@ -1,6 +1,7 @@
-import tressa from '../node_modules/tressa/tressa-es.js';
-
 import $ from '../node_modules/query-result/esm/index.js';
+import test from '../node_modules/tressa/esm/index.js';
+import '../node_modules/tressa/reporters/HTMLReporter.js';
+
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
 
@@ -19,8 +20,13 @@ $('p').map((p) => {
   console.log('ppp', p);
 })
 */
+test.title('qr manipulation tests');
+/*
+test(1, 'ok');
+test(0, 'failed');
+*/
 
-console.log('tressa', tressa);
+console.log('tressa', test);
 
 $('p').after(function (i, oldTxt) {
   const node = document.createElement('div');
