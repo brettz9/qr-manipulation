@@ -1,10 +1,11 @@
 import $ from '../node_modules/query-result/esm/index.js';
 import test from '../node_modules/tressa/esm/index.js';
-import '../node_modules/tressa/reporters/HTMLReporter.js';
+import htmlReporter from '../node_modules/tressa/reporters/HTMLReporter.js';
 
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
 
+htmlReporter();
 manipulation($);
 
 // Todo: Move to traversal
