@@ -1,20 +1,25 @@
 import $ from '../node_modules/query-result/esm/index.js';
-import test, {addHTMLReporter} from '../node_modules/tressa/esm/index.js';
-import htmlReporter from '../node_modules/tressa/reporters/HTMLReporter.js';
 
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
 
+import {test, describe, it, assert, mocha} from './lite-mocha.js';
+
 manipulation($);
-
-const results = $('#results')[0];
-addHTMLReporter(results);
-htmlReporter(results);
-
 // Todo: Move to traversal
 $.extend('each', function each (cb, thisObj) {
   this.forEach(cb, thisObj);
   return this;
+});
+
+const $context = $('#results')[0];
+mocha.setup({ui: 'tdd', $context});
+
+describe('qr manipulation tests111', () => {
+  it('abc', () => {
+    assert(true, 'ok');
+  });
+  describe('qr manipulatin inner', () => {});
 });
 
 (async () => {
@@ -26,7 +31,6 @@ $('p').map((p) => {
   console.log('ppp', p);
 })
 */
-test.title('qr manipulation tests');
 /*
 test(1, 'ok');
 test(0, 'failed');
