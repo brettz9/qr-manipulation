@@ -13,6 +13,8 @@ $.extend('each', function each (cb, thisObj) {
   this.forEach(cb, thisObj);
   return this;
 });
+
+(async () => {
 /*
 $('p').map((p) => {
   console.log('p', p);
@@ -25,9 +27,16 @@ test.title('qr manipulation tests');
 /*
 test(1, 'ok');
 test(0, 'failed');
+test.log('abce\n### def');
+await test.async((done) => {
+  setTimeout(() => {
+    console.log('cccc');
+    done();
+  }, 500);
+}, 1000);
 */
 
-console.log('tressa', test);
+test.end();
 
 $('p').after(function (i, oldTxt) {
   const node = document.createElement('div');
@@ -83,3 +92,4 @@ div4.id = 'anotherDiv4';
 $('body').append(div4);
 const qr = $('hr');
 $('#anotherDiv4').html([document.createElement('hr'), ...qr]);
+})();
