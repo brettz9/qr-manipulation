@@ -27,9 +27,9 @@ $('p').map((p) => {
 })
 */
 test.title('qr manipulation tests');
+/*
 test(1, 'ok');
 test(0, 'failed');
-/*
 test.log('abce\n### def');
 await test.async((done) => {
   setTimeout(() => {
@@ -39,9 +39,7 @@ await test.async((done) => {
 }, 1000);
 */
 
-test.end();
-
-const context = $('#test-area');
+const testArea = $('#test-area');
 
 $('p').after(function (i, oldTxt) {
   const node = document.createElement('div');
@@ -54,20 +52,20 @@ $('p').after(function (i, oldTxt) {
 }).after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
 ).after(document.createTextNode('----'), document.createElement('hr'));
 
-context.append('the', document.createTextNode(' '), '<b>end</b>');
+testArea.append('the', document.createTextNode(' '), '<b>end</b>');
 
 $('#test-area > *:first-child').prepend('<b>BEGIN</b>');
 
 const p = document.createElement('p');
 p.className = 'move';
 p.textContent = 'of the end';
-context[0].append(p);
+testArea[0].append(p);
 const p2 = document.createElement('p');
 p2.className = 'move';
 p2.textContent = 'was at end';
-context[0].append(p2);
+testArea[0].append(p2);
 
-context.before($('p.move')[0], $('p.move')[1]);
+testArea.before($('p.move')[0], $('p.move')[1]);
 
 const div = document.createElement('div');
 div.className = 'aDiv';
@@ -75,26 +73,28 @@ div.className = 'aDiv';
 const i = document.createElement('i');
 i.textContent = 'another end';
 
-context.append(div);
-context.append(div.cloneNode(true));
+testArea.append(div);
+testArea.append(div.cloneNode(true));
 $('.aDiv').html(i);
 
 const div2 = document.createElement('div');
 div2.id = 'anotherDiv';
-context.append(div2);
+testArea.append(div2);
 
 $('#anotherDiv').text(i);
 
 const div3 = document.createElement('div');
 div3.id = 'anotherDiv3';
-context.append(div3);
+testArea.append(div3);
 const frag = document.createDocumentFragment();
 frag.append('a', document.createElement('hr'), 'b');
 $('#anotherDiv3').html(frag);
 
 const div4 = document.createElement('div');
 div4.id = 'anotherDiv4';
-context.append(div4);
+testArea.append(div4);
 const qr = $('hr');
 $('#anotherDiv4').html([document.createElement('hr'), ...qr]);
+
+test.end();
 })();
