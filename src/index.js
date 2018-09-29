@@ -57,6 +57,9 @@ function convertToDOM (content, type, avoidClone) {
     return avoidClone
       ? content
       : content.map((node) => {
+        if (!node || !node.cloneNode) { // Allows for arrays of HTML strings
+          return convertToDOM(node, type, false);
+        }
         return node.cloneNode(true);
       });
   }
@@ -122,16 +125,26 @@ export const prepend = insert('prepend');
 export const html = insertText('innerHTML');
 export const text = insertText('textContent');
 
-function insertTo (type) {
+// Given that these types require a selector engine and
+// in order to avoid the absence of optimization of `document.querySelectorAll`
+// for `:first-child` and different behavior in different contexts,
+// and to avoid making a mutual dependency with query-result,
+// exports of this type accept a QueryResult instance;
+// if selected without a second argument, we do default to
+//  `document.querySelectorAll`, however.
+export const insertTo = function (method, $ = (sel) => [...document.querySelectorAll(sel)]) {
+  const type = {
+    appendTo: 'append',
+    prependTo: 'prepend',
+    insertAfter: 'after',
+    insertBefore: 'before'
+  }[method] || 'append';
   return function (target) {
     const toType = type + 'To';
     this.forEach((node, i, arr) => {
-      // We could allow selectors, but then we'd need QueryResult as
-      //   a mutual dependency and we wouldn't know which context (or
-      // would need to assume global context and/or just use
-      // `document.querySelectorAll` but then we'd miss the optimization
-      // of its `:first-child` and behave differently in different contexts)
-      // if (typeof target === 'string' && target.charAt(0) !== '<') {
+      if (typeof target === 'string' && target.charAt(0) !== '<') {
+        target = $(target);
+      }
       target = Array.isArray(target) ? target : [target];
       node[type](...target.flatMap((content) => {
         return convertToDOM(content, toType, i === arr.length - 1);
@@ -139,17 +152,69 @@ function insertTo (type) {
     });
     return this;
   };
-}
+};
 
-export const appendTo = insertTo('append');
-export const prependTo = insertTo('prepend');
-export const insertAfter = insertTo('after');
-export const insertBefore = insertTo('before');
-
+// Todo: optional `withDataAndEvents` and `deepWithDataAndEvents` arguments?
 export const clone = function () {
   return this.map((node) => { // Still a QueryResult with such a map
     return node.cloneNode(true);
   });
+};
+
+export const attr = function (attributeNameOrAtts, valueOrCb) {
+  if (valueOrCb === undefined) {
+    switch (typeof attributeNameOrAtts) {
+    case 'string': {
+      return this[0].hasAttribute(attributeNameOrAtts)
+        ? this[0].getAttribute(attributeNameOrAtts)
+        : undefined;
+    }
+    case 'object': {
+      if (attributeNameOrAtts) {
+        this.forEach((node, i) => {
+          Object.entries(attributeNameOrAtts).forEach(([att, val]) => {
+            node.setAttribute(att, val);
+          });
+        });
+        return this;
+      }
+    } // Fallthrough
+    default: {
+      throw new TypeError('Unexpected type for attribute name: ' + typeof attributeNameOrAtts);
+    }
+    }
+  }
+  switch (typeof valueOrCb) {
+  case 'function': {
+    this.forEach((node, i) => {
+      const ret = valueOrCb.call(this, i, node.getAttribute(valueOrCb));
+      if (ret === null) {
+        node.removeAttribute(attributeNameOrAtts);
+      } else {
+        node.setAttribute(attributeNameOrAtts, ret);
+      }
+    });
+    break;
+  }
+  case 'string': {
+    this.forEach((node, i) => {
+      node.setAttribute(attributeNameOrAtts, valueOrCb);
+    });
+    break;
+  }
+  case 'object': {
+    if (!valueOrCb) {
+      this.forEach((node, i) => {
+        node.removeAttribute(attributeNameOrAtts);
+      });
+      break;
+    }
+  } // Fallthrough
+  default: {
+    throw new TypeError('Unexpected type for attribute name: ' + typeof attributeNameOrAtts);
+  }
+  }
+  return this;
 };
 
 function classAttManipulation (type) {
@@ -217,83 +282,26 @@ export const toggleClass = function (classNameOrCb, state) {
   }
 };
 
-export const attr = function (attributeNameOrAtts, valueOrCb) {
-  if (valueOrCb === undefined) {
-    switch (typeof attributeNameOrAtts) {
-    case 'string': {
-      return this[0].hasAttribute(attributeNameOrAtts)
-        ? this[0].getAttribute(attributeNameOrAtts)
-        : undefined;
-    }
-    case 'object': {
-      if (attributeNameOrAtts) {
-        this.forEach((node, i) => {
-          Object.entries(attributeNameOrAtts).forEach(([att, val]) => {
-            node.setAttribute(att, val);
-          });
-        });
-        return this;
-      }
-    } // Fallthrough
-    default: {
-      throw new TypeError('Unexpected type for attribute name: ' + typeof attributeNameOrAtts);
-    }
-    }
-  }
-  switch (typeof valueOrCb) {
-  case 'function': {
-    this.forEach((node, i) => {
-      const ret = valueOrCb.call(this, i, node.getAttribute(valueOrCb));
-      if (ret === null) {
-        node.removeAttribute(attributeNameOrAtts);
-      } else {
-        node.setAttribute(attributeNameOrAtts, ret);
-      }
-    });
-    break;
-  }
-  case 'string': {
-    this.forEach((node, i) => {
-      node.setAttribute(attributeNameOrAtts, valueOrCb);
-    });
-    break;
-  }
-  case 'object': {
-    if (!valueOrCb) {
-      this.forEach((node, i) => {
-        node.removeAttribute(attributeNameOrAtts);
-      });
-      break;
-    }
-  } // Fallthrough
-  default: {
-    throw new TypeError('Unexpected type for attribute name: ' + typeof attributeNameOrAtts);
-  }
-  }
-  return this;
-};
-
 const methods = {
   after, before, append, prepend,
-  appendTo, prependTo,
-  insertAfter, insertBefore,
-  clone,
   html, text,
-  addClass, hasClass, removeClass, toggleClass,
-  attr
+  clone,
+  attr,
+  addClass, hasClass, removeClass, toggleClass
 };
 
 export const manipulation = function ($, jml) {
   [
     'after', 'before', 'append', 'prepend',
-    'appendTo', 'prependTo',
-    'insertAfter', 'insertBefore',
-    'clone',
     'html', 'text',
-    'addClass', 'hasClass', 'removeClass', 'toggleClass',
-    'attr'
+    'clone',
+    'attr',
+    'addClass', 'hasClass', 'removeClass', 'toggleClass'
   ].forEach((method) => {
     $.extend(method, methods[method]);
+  });
+  ['appendTo', 'prependTo', 'insertAfter', 'insertBefore'].forEach((method) => {
+    $.extend(method, insertTo(method, $));
   });
   if (jml) {
     $.extend('jml', function (...args) {

@@ -150,10 +150,12 @@
           } // Array of nodes, QueryResult objects
 
 
-          return avoidClone ? content.map(function (node, i, arr) {
-            // We still clone for all but the last
-            return i === arr.length - 1 ? node : node.cloneNode(true);
-          }) : content.map(function (node) {
+          return avoidClone ? content : content.map(function (node) {
+            if (!node || !node.cloneNode) {
+              // Allows for arrays of HTML strings
+              return convertToDOM(node, type, false);
+            }
+
             return node.cloneNode(true);
           });
         }
@@ -192,9 +194,9 @@
 
         default:
           {
-            this.forEach(function (node) {
-              node[type].apply(node, _toConsumableArray(args.flatMap(function (content, i) {
-                return convertToDOM(content, type, i === args.length - 1);
+            this.forEach(function (node, i, arr) {
+              node[type].apply(node, _toConsumableArray(args.flatMap(function (content) {
+                return convertToDOM(content, type, i === arr.length - 1);
               })));
             });
             break;
@@ -237,131 +239,48 @@
   var append = insert('append');
   var prepend = insert('prepend');
   var html = insertText('innerHTML');
-  var text = insertText('textContent');
+  var text = insertText('textContent'); // Given that these types require a selector engine and
+  // in order to avoid the absence of optimization of `document.querySelectorAll`
+  // for `:first-child` and different behavior in different contexts,
+  // and to avoid making a mutual dependency with query-result,
+  // exports of this type accept a QueryResult instance;
+  // if selected without a second argument, we do default to
+  //  `document.querySelectorAll`, however.
 
-  function insertTo(type) {
+  var insertTo = function insertTo(method) {
+    var $ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function (sel) {
+      return _toConsumableArray(document.querySelectorAll(sel));
+    };
+    var type = {
+      appendTo: 'append',
+      prependTo: 'prepend',
+      insertAfter: 'after',
+      insertBefore: 'before'
+    }[method] || 'append';
     return function (target) {
       var toType = type + 'To';
-      this.forEach(function (node) {
-        // We could allow selectors, but then we'd need QueryResult as
-        //   a mutual dependency and we wouldn't know which context (or
-        // would need to assume global context and/or just use
-        // `document.querySelectorAll` but then we'd miss the optimization
-        // of its `:first-child` and behave differently in different contexts)
-        // if (typeof target === 'string' && target.charAt(0) !== '<') {
+      this.forEach(function (node, i, arr) {
+        if (typeof target === 'string' && target.charAt(0) !== '<') {
+          target = $(target);
+        }
+
         target = Array.isArray(target) ? target : [target];
-        node[type].apply(node, _toConsumableArray(target.flatMap(function (content, i, arr) {
+        node[type].apply(node, _toConsumableArray(target.flatMap(function (content) {
           return convertToDOM(content, toType, i === arr.length - 1);
         })));
       });
       return this;
     };
-  }
+  }; // Todo: optional `withDataAndEvents` and `deepWithDataAndEvents` arguments?
 
-  var appendTo = insertTo('append');
-  var prependTo = insertTo('prepend');
   var clone = function clone() {
     return this.map(function (node) {
       // Still a QueryResult with such a map
       return node.cloneNode(true);
     });
   };
-
-  function classAttManipulation(type) {
-    return function (cbOrContent) {
-      var _this3 = this;
-
-      switch (_typeof(cbOrContent)) {
-        case 'function':
-          {
-            this.forEach(function (node, i) {
-              var _node$classList;
-
-              var ret = cbOrContent.call(_this3, i, node.className);
-
-              (_node$classList = node.classList)[type].apply(_node$classList, _toConsumableArray(ret.split(' ')));
-            });
-            break;
-          }
-
-        default:
-          {
-            if (type === 'remove' && !cbOrContent) {
-              this.forEach(function (node) {
-                node.className = '';
-              });
-              break;
-            }
-
-            this.forEach(function (node) {
-              var _node$classList2;
-
-              (_node$classList2 = node.classList)[type].apply(_node$classList2, _toConsumableArray(cbOrContent.split(' ')));
-            });
-            break;
-          }
-      }
-
-      return this;
-    };
-  }
-
-  var addClass = classAttManipulation('add');
-  var removeClass = classAttManipulation('remove');
-  var hasClass = function hasClass(className) {
-    return this.some(function (node) {
-      return node.classList.contains(className);
-    });
-  };
-  var toggleClass = function toggleClass(classNameOrCb, state) {
-    var _this4 = this;
-
-    switch (typeof cbOrContent === "undefined" ? "undefined" : _typeof(cbOrContent)) {
-      case 'function':
-        {
-          if (typeof state === 'boolean') {
-            this.forEach(function (node, i) {
-              var _node$classList3;
-
-              var ret = classNameOrCb.call(_this4, i, node.className, state);
-
-              (_node$classList3 = node.classList).toggle.apply(_node$classList3, _toConsumableArray(ret.split(' ')).concat([state]));
-            });
-          } else {
-            this.forEach(function (node, i) {
-              var _node$classList4;
-
-              var ret = classNameOrCb.call(_this4, i, node.className, state);
-
-              (_node$classList4 = node.classList).toggle.apply(_node$classList4, _toConsumableArray(ret.split(' ')));
-            });
-          }
-
-          break;
-        }
-
-      case 'string':
-        {
-          if (typeof state === 'boolean') {
-            this.forEach(function (node) {
-              var _node$classList5;
-
-              (_node$classList5 = node.classList).toggle.apply(_node$classList5, _toConsumableArray(classNameOrCb.split(' ')).concat([state]));
-            });
-          } else {
-            this.forEach(function (node) {
-              var _node$classList6;
-
-              (_node$classList6 = node.classList).toggle.apply(_node$classList6, _toConsumableArray(classNameOrCb.split(' ')));
-            });
-          }
-
-          break;
-        }
-    }
-  };
   var attr = function attr(attributeNameOrAtts, valueOrCb) {
-    var _this5 = this;
+    var _this3 = this;
 
     if (valueOrCb === undefined) {
       switch (_typeof(attributeNameOrAtts)) {
@@ -398,7 +317,7 @@
       case 'function':
         {
           this.forEach(function (node, i) {
-            var ret = valueOrCb.call(_this5, i, node.getAttribute(valueOrCb));
+            var ret = valueOrCb.call(_this3, i, node.getAttribute(valueOrCb));
 
             if (ret === null) {
               node.removeAttribute(attributeNameOrAtts);
@@ -436,26 +355,121 @@
 
     return this;
   };
+
+  function classAttManipulation(type) {
+    return function (cbOrContent) {
+      var _this4 = this;
+
+      switch (_typeof(cbOrContent)) {
+        case 'function':
+          {
+            this.forEach(function (node, i) {
+              var _node$classList;
+
+              var ret = cbOrContent.call(_this4, i, node.className);
+
+              (_node$classList = node.classList)[type].apply(_node$classList, _toConsumableArray(ret.split(' ')));
+            });
+            break;
+          }
+
+        default:
+          {
+            if (type === 'remove' && !cbOrContent) {
+              this.forEach(function (node) {
+                node.className = '';
+              });
+              break;
+            }
+
+            this.forEach(function (node) {
+              var _node$classList2;
+
+              (_node$classList2 = node.classList)[type].apply(_node$classList2, _toConsumableArray(cbOrContent.split(' ')));
+            });
+            break;
+          }
+      }
+
+      return this;
+    };
+  }
+
+  var addClass = classAttManipulation('add');
+  var removeClass = classAttManipulation('remove');
+  var hasClass = function hasClass(className) {
+    return this.some(function (node) {
+      return node.classList.contains(className);
+    });
+  };
+  var toggleClass = function toggleClass(classNameOrCb, state) {
+    var _this5 = this;
+
+    switch (typeof cbOrContent === "undefined" ? "undefined" : _typeof(cbOrContent)) {
+      case 'function':
+        {
+          if (typeof state === 'boolean') {
+            this.forEach(function (node, i) {
+              var _node$classList3;
+
+              var ret = classNameOrCb.call(_this5, i, node.className, state);
+
+              (_node$classList3 = node.classList).toggle.apply(_node$classList3, _toConsumableArray(ret.split(' ')).concat([state]));
+            });
+          } else {
+            this.forEach(function (node, i) {
+              var _node$classList4;
+
+              var ret = classNameOrCb.call(_this5, i, node.className, state);
+
+              (_node$classList4 = node.classList).toggle.apply(_node$classList4, _toConsumableArray(ret.split(' ')));
+            });
+          }
+
+          break;
+        }
+
+      case 'string':
+        {
+          if (typeof state === 'boolean') {
+            this.forEach(function (node) {
+              var _node$classList5;
+
+              (_node$classList5 = node.classList).toggle.apply(_node$classList5, _toConsumableArray(classNameOrCb.split(' ')).concat([state]));
+            });
+          } else {
+            this.forEach(function (node) {
+              var _node$classList6;
+
+              (_node$classList6 = node.classList).toggle.apply(_node$classList6, _toConsumableArray(classNameOrCb.split(' ')));
+            });
+          }
+
+          break;
+        }
+    }
+  };
   var methods = {
     after: after,
     before: before,
     append: append,
     prepend: prepend,
-    appendTo: appendTo,
-    prependTo: prependTo,
-    clone: clone,
     html: html,
     text: text,
+    clone: clone,
+    attr: attr,
     addClass: addClass,
     hasClass: hasClass,
     removeClass: removeClass,
-    toggleClass: toggleClass,
-    attr: attr
+    toggleClass: toggleClass
   };
 
   var manipulation = function manipulation($, jml) {
-    ['after', 'before', 'append', 'prepend', 'appendTo', 'prependTo', 'clone', 'html', 'text', 'addClass', 'hasClass', 'removeClass', 'toggleClass', 'attr'].forEach(function (method) {
+    ['after', 'before', 'append', 'prepend', 'html', 'text', 'clone', 'attr', 'addClass', 'hasClass', 'removeClass', 'toggleClass'].forEach(function (method) {
       $.extend(method, methods[method]);
+    });
+    ['appendTo', 'prependTo', 'insertAfter', 'insertBefore'].forEach(function (method) {
+      $.extend(method, insertTo(method, $));
     });
 
     if (jml) {
@@ -486,14 +500,13 @@
   exports.prepend = prepend;
   exports.html = html;
   exports.text = text;
-  exports.appendTo = appendTo;
-  exports.prependTo = prependTo;
+  exports.insertTo = insertTo;
   exports.clone = clone;
+  exports.attr = attr;
   exports.addClass = addClass;
   exports.removeClass = removeClass;
   exports.hasClass = hasClass;
   exports.toggleClass = toggleClass;
-  exports.attr = attr;
   exports.manipulation = manipulation;
 
   Object.defineProperty(exports, '__esModule', { value: true });

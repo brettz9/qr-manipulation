@@ -11,28 +11,23 @@ Extension for Query Result to add jQuery-type manipulation functionality.
 
 In very early stages...
 
+## `manipulation` export signature
+
+- `manipulation($ [, jml])` - `$` is the [query-result](https://github.com/WebReflection/query-result)
+  instance, while the second (optional) argument is a [Jamilih](https://github.com/brettz9/jamilih/)
+  instance that will be used for adding a `jml` method.
+
 ## Methods
+
+These methods may be obtained individually (though see the notes for
+`appendTo`, `prependTo`, `insertBefore`, and `insertAfter` which
+require `insertTo` in such a situation), or one may use `manipulation`
+which makes available all methods automatically.
 
 - `append(content [, content])`
 - `append(function-html)`
 - `prepend(content [, content])`
 - `prepend(function-html)`
-
-- `appendTo(target)` - Does not support selectors (would require context
-    (or assumption thereof) and/or QR mutual dependency); just wrap
-    `target` in QR
-- `prependTo(target)` - Does not support selectors (would require context
-    (or assumption thereof) and/or QR mutual dependency); just wrap
-    `target` in QR
-- `insertAfter(target)` - Does not support selectors (would require context
-    (or assumption thereof) and/or QR mutual dependency); just wrap
-    `target` in QR
-- `insertBefore(target)` - Does not support selectors (would require context
-    (or assumption thereof) and/or QR mutual dependency); just wrap
-    `target` in QR
-
-- `clone()` - Does not support optional `withDataAndEvents` and
-  `deepWithDataAndEvents` arguments
 
 - `after(content [, content])`
 - `after(function-html)`
@@ -44,6 +39,14 @@ In very early stages...
 - `text(content)`
 - `text(function-html)`
 
+- `clone()` - Does not support optional `withDataAndEvents` and
+  `deepWithDataAndEvents` arguments
+
+- `attr(attributeName)`
+- `attr(attributes)`
+- `attr(attributeName, value)`
+- `attr(attributeName, function)`
+
 - `hasClass(className)`
 - `addClass(className)`
 - `addClass(function)`
@@ -53,10 +56,21 @@ In very early stages...
 - `toggleClass(className, state)`
 - `toggleClass(function [, state])`
 
-- `attr(attributeName)`
-- `attr(attributes)`
-- `attr(attributeName, value)`
-- `attr(attributeName, function)`
+For the following methods, because they allow selectors, and so we can
+avoid a mutual dependency with query-result (or use
+`document.querySelectorAll` which doesn't have all of the latter's features),
+are not available directly as exports.
+
+You should, if you are not using `manipulation` (which adds all methods
+automatically) instead import `insertTo` and invoke it as
+`insertTo(method, queryResultInstance)`, e.g., `insertTo('appendTo', $);`
+in order to get that particular method for manual use of `$.extend`:
+
+- `appendTo(target)`
+- `prependTo(target)`
+
+- `insertAfter(target)`
+- `insertBefore(target)`
 
 There is also an `jml` method if a `jml` instance is supplied as the
 second argument to `manipulation`. This will expect an array to be used as
