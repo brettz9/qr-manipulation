@@ -67,7 +67,7 @@ async function iterateGroups (innerGroups) {
           await beforeEachs.reduce(labelAndFn(parentCtx, (beforeEachTitle) => {
             test.log(`_beforeEach_: ${beforeEachTitle}`);
           }), Promise.resolve());
-          test.log(`_TEST_: ${testTitle}`);
+          test.log(`**TEST**: ${testTitle}`);
         }, async () => {
           await afterEachs.reduce(labelAndFn(parentCtx, (afterEachTitle) => {
             test.log(`_afterEach_: ${afterEachTitle}`);

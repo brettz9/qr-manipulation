@@ -14,7 +14,10 @@ $.extend('each', function each (cb, thisObj) {
 });
 
 (async () => {
-const testAreaDOM = document.querySelector('#test-area');
+const qs = (sel) => document.querySelector(sel);
+const qsa = (sel) => document.querySelectorAll(sel);
+
+const testAreaDOM = qs('#test-area');
 const testArea = $('#test-area');
 const $context = $('#results')[0];
 mocha.setup({ui: 'tdd', $context, $allowHTML: true});
@@ -88,7 +91,16 @@ describe('qr manipulation tests', () => {
     domMatchesString('after and before chained (next) 6', p[1].nextElementSibling.nextElementSibling, `<br>`);
   });
 
-  // Todo: Check last element in target does not have clones added
+  it('`after` and `before` (only cloning for non-final items)', function () {
+    const {p} = this.test.parent.ctx;
+    const [div1] = [...qsa('#test-area > div')];
+    p.after(div1); // Should make a copy of div1 after the first p and move the real one to after the 2nd p
+    domMatchesString('First item(s) gets the content', p[0].nextElementSibling, '<div>test1::0</div>');
+    domMatchesString('Final item gets the content', p[1].nextElementSibling, '<div>test1::0</div>');
+    domMatchesString('Only one div is left intervening', p[0].nextElementSibling.nextElementSibling, '<p>test2</p>');
+    assert(p[0].nextElementSibling !== div1, 'The first item(s) in a set get clones');
+    assert(p[1].nextElementSibling === div1, 'The last item in a set gets the actual node');
+  });
 });
 
 /*
