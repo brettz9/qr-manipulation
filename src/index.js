@@ -125,6 +125,13 @@ export const prepend = insert('prepend');
 export const html = insertText('innerHTML');
 export const text = insertText('textContent');
 
+/*
+// Todo:
+export const val = function (valueOrFunc) {
+
+};
+*/
+
 // Given that these types require a selector engine and
 // in order to avoid the absence of optimization of `document.querySelectorAll`
 // for `:first-child` and different behavior in different contexts,
@@ -160,6 +167,33 @@ export const clone = function () {
     return node.cloneNode(true);
   });
 };
+
+export const empty = function () {
+  this.forEach((node) => {
+    node.textContent = '';
+  });
+};
+export const remove = function (selector) {
+  if (selector) {
+    this.forEach((node) => {
+      if (node.matches(selector)) { // Todo: Use query-result instead?
+        node.remove();
+      }
+    });
+  } else {
+    this.forEach((node) => {
+      node.remove();
+    });
+  }
+  return this;
+};
+/*
+// Todo:
+export const detach = function (selector) {
+  // Should preserve attached data
+  return remove(selector);
+};
+*/
 
 export const attr = function (attributeNameOrAtts, valueOrCb) {
   if (valueOrCb === undefined) {
@@ -203,11 +237,8 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
     break;
   }
   case 'object': {
-    if (!valueOrCb) {
-      this.forEach((node, i) => {
-        node.removeAttribute(attributeNameOrAtts);
-      });
-      break;
+    if (!valueOrCb) { // `null`
+      return removeAttr.call(this, attributeNameOrAtts);
     }
   } // Fallthrough
   default: {
@@ -215,6 +246,15 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
   }
   }
   return this;
+};
+
+export const removeAttr = function (attributeName) {
+  if (typeof attributeName !== 'string') {
+    throw new TypeError('Unexpected type for attribute name: ' + typeof attributeName);
+  }
+  this.forEach((node) => {
+    node.removeAttribute(attributeName);
+  });
 };
 
 function classAttManipulation (type) {
@@ -286,7 +326,8 @@ const methods = {
   after, before, append, prepend,
   html, text,
   clone,
-  attr,
+  empty, remove, // detach
+  attr, removeAttr,
   addClass, hasClass, removeClass, toggleClass
 };
 
@@ -295,7 +336,8 @@ export const manipulation = function ($, jml) {
     'after', 'before', 'append', 'prepend',
     'html', 'text',
     'clone',
-    'attr',
+    'empty', 'remove', // 'detach'
+    'attr', 'removeAttr',
     'addClass', 'hasClass', 'removeClass', 'toggleClass'
   ].forEach((method) => {
     $.extend(method, methods[method]);

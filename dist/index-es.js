@@ -233,7 +233,14 @@ var before = insert('before');
 var append = insert('append');
 var prepend = insert('prepend');
 var html = insertText('innerHTML');
-var text = insertText('textContent'); // Given that these types require a selector engine and
+var text = insertText('textContent');
+/*
+// Todo:
+export const val = function (valueOrFunc) {
+
+};
+*/
+// Given that these types require a selector engine and
 // in order to avoid the absence of optimization of `document.querySelectorAll`
 // for `:first-child` and different behavior in different contexts,
 // and to avoid making a mutual dependency with query-result,
@@ -273,6 +280,35 @@ var clone = function clone() {
     return node.cloneNode(true);
   });
 };
+var empty = function empty() {
+  this.forEach(function (node) {
+    node.textContent = '';
+  });
+};
+var remove = function remove(selector) {
+  if (selector) {
+    this.forEach(function (node) {
+      if (node.matches(selector)) {
+        // Todo: Use query-result instead?
+        node.remove();
+      }
+    });
+  } else {
+    this.forEach(function (node) {
+      node.remove();
+    });
+  }
+
+  return this;
+};
+/*
+// Todo:
+export const detach = function (selector) {
+  // Should preserve attached data
+  return remove(selector);
+};
+*/
+
 var attr = function attr(attributeNameOrAtts, valueOrCb) {
   var _this3 = this;
 
@@ -333,10 +369,8 @@ var attr = function attr(attributeNameOrAtts, valueOrCb) {
     case 'object':
       {
         if (!valueOrCb) {
-          this.forEach(function (node, i) {
-            node.removeAttribute(attributeNameOrAtts);
-          });
-          break;
+          // `null`
+          return removeAttr.call(this, attributeNameOrAtts);
         }
       }
     // Fallthrough
@@ -348,6 +382,15 @@ var attr = function attr(attributeNameOrAtts, valueOrCb) {
   }
 
   return this;
+};
+var removeAttr = function removeAttr(attributeName) {
+  if (typeof attributeName !== 'string') {
+    throw new TypeError('Unexpected type for attribute name: ' + _typeof(attributeName));
+  }
+
+  this.forEach(function (node) {
+    node.removeAttribute(attributeName);
+  });
 };
 
 function classAttManipulation(type) {
@@ -451,7 +494,11 @@ var methods = {
   html: html,
   text: text,
   clone: clone,
+  empty: empty,
+  remove: remove,
+  // detach
   attr: attr,
+  removeAttr: removeAttr,
   addClass: addClass,
   hasClass: hasClass,
   removeClass: removeClass,
@@ -459,7 +506,8 @@ var methods = {
 };
 
 var manipulation = function manipulation($, jml) {
-  ['after', 'before', 'append', 'prepend', 'html', 'text', 'clone', 'attr', 'addClass', 'hasClass', 'removeClass', 'toggleClass'].forEach(function (method) {
+  ['after', 'before', 'append', 'prepend', 'html', 'text', 'clone', 'empty', 'remove', // 'detach'
+  'attr', 'removeAttr', 'addClass', 'hasClass', 'removeClass', 'toggleClass'].forEach(function (method) {
     $.extend(method, methods[method]);
   });
   ['appendTo', 'prependTo', 'insertAfter', 'insertBefore'].forEach(function (method) {
@@ -488,4 +536,4 @@ var manipulation = function manipulation($, jml) {
   return $;
 };
 
-export { after, before, append, prepend, html, text, insertTo, clone, attr, addClass, removeClass, hasClass, toggleClass, manipulation };
+export { after, before, append, prepend, html, text, insertTo, clone, empty, remove, attr, removeAttr, addClass, removeClass, hasClass, toggleClass, manipulation };

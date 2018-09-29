@@ -42,10 +42,15 @@ which makes available all methods automatically.
 - `clone()` - Does not support optional `withDataAndEvents` and
   `deepWithDataAndEvents` arguments
 
+- `empty()`
+- `remove()`
+- `remove(selector)` - The `selector` currently uses `Element.matches` instead of QueryResult
+
 - `attr(attributeName)`
 - `attr(attributes)`
 - `attr(attributeName, value)`
 - `attr(attributeName, function)`
+- `removeAttr(attributeName)`
 
 - `hasClass(className)`
 - `addClass(className)`
