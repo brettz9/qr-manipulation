@@ -28,9 +28,9 @@ function escapeHTML (s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function domMatchesString (qr, expected) {
+function domMatchesString (qr, expected, msg) {
   const actual = qr.outerHTML;
-  assert(actual === expected, `Expected HTML: ${
+  assert(actual === expected, `Expected HTML${msg ? ` (${msg})` : ''}: ${
     escapeHTML(expected)
   };<br> actual: ${escapeHTML(actual)}`);
 }
@@ -50,18 +50,19 @@ describe('qr manipulation tests', () => {
       node.textContent = oldTxt + '::' + i;
       return node;
     });
-    domMatchesString(p[0].nextElementSibling, `<div>test1::0</div>`);
-    domMatchesString(p[1].nextElementSibling, `<div>test2::1</div>`);
+    domMatchesString(p[0].nextElementSibling, `<div>test1::0</div>`, 'after1');
+    domMatchesString(p[1].nextElementSibling, `<div>test2::1</div>`, 'after2');
 
-    /*
     p.before(function (i, oldTxt) {
       const node = document.createElement('div');
       node.textContent = 'aaaa:' + oldTxt + '::' + i;
       return node;
-    }).after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
+    });
+    domMatchesString(p[0].previousElementSibling, `<div>aaaa:test1::0</div>`, 'before1');
+    domMatchesString(p[1].previousElementSibling, `<div>aaaa:test2::1</div>`, 'before2');
+
+    p.after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
     ).after(document.createTextNode('----'), document.createElement('hr'));
-    assert(true);
-    */
   });
   // describe('qr manipulation inner', () => {});
 });
