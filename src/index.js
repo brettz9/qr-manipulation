@@ -55,9 +55,7 @@ function convertToDOM (content, type, avoidClone) {
 
     // Array of nodes, QueryResult objects
     return avoidClone
-      ? content.map((node, i, arr) => { // We still clone for all but the last
-        return i === arr.length - 1 ? node : node.cloneNode(true);
-      })
+      ? content
       : content.map((node) => {
         return node.cloneNode(true);
       });
@@ -84,9 +82,9 @@ function insert (type) {
       break;
     }
     default: {
-      this.forEach((node) => {
-        node[type](...args.flatMap((content, i) => {
-          return convertToDOM(content, type, i === args.length - 1);
+      this.forEach((node, i, arr) => {
+        node[type](...args.flatMap((content) => {
+          return convertToDOM(content, type, i === arr.length - 1);
         }));
       });
       break;
@@ -127,7 +125,7 @@ export const text = insertText('textContent');
 function insertTo (type) {
   return function (target) {
     const toType = type + 'To';
-    this.forEach((node) => {
+    this.forEach((node, i, arr) => {
       // We could allow selectors, but then we'd need QueryResult as
       //   a mutual dependency and we wouldn't know which context (or
       // would need to assume global context and/or just use
@@ -135,7 +133,7 @@ function insertTo (type) {
       // of its `:first-child` and behave differently in different contexts)
       // if (typeof target === 'string' && target.charAt(0) !== '<') {
       target = Array.isArray(target) ? target : [target];
-      node[type](...target.flatMap((content, i, arr) => {
+      node[type](...target.flatMap((content) => {
         return convertToDOM(content, toType, i === arr.length - 1);
       }));
     });
@@ -145,6 +143,8 @@ function insertTo (type) {
 
 export const appendTo = insertTo('append');
 export const prependTo = insertTo('prepend');
+export const insertAfter = insertTo('after');
+export const insertBefore = insertTo('before');
 
 export const clone = function () {
   return this.map((node) => { // Still a QueryResult with such a map
@@ -276,6 +276,7 @@ export const attr = function (attributeNameOrAtts, valueOrCb) {
 const methods = {
   after, before, append, prepend,
   appendTo, prependTo,
+  insertAfter, insertBefore,
   clone,
   html, text,
   addClass, hasClass, removeClass, toggleClass,
@@ -286,6 +287,7 @@ export const manipulation = function ($, jml) {
   [
     'after', 'before', 'append', 'prepend',
     'appendTo', 'prependTo',
+    'insertAfter', 'insertBefore',
     'clone',
     'html', 'text',
     'addClass', 'hasClass', 'removeClass', 'toggleClass',

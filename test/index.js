@@ -3,7 +3,7 @@ import $ from '../node_modules/query-result/esm/index.js';
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
 
-import {test, describe, it, beforeEach, assert, mocha} from './lite-mocha.js';
+import {test, describe, it, beforeEach, afterEach, assert, mocha} from './lite-mocha.js';
 
 manipulation($);
 
@@ -28,43 +28,64 @@ function escapeHTML (s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function domMatchesString (qr, expected, msg) {
-  const actual = qr.outerHTML;
+function domMatchesString (msg, qr, expected) {
+  if (arguments.length === 2) {
+    expected = qr;
+    qr = msg;
+    msg = undefined;
+  }
+  const actual = qr.nodeValue || qr.outerHTML; // text nodes and elements
   assert(actual === expected, `Expected HTML${msg ? ` (${msg})` : ''}: ${
     escapeHTML(expected)
   };<br> actual: ${escapeHTML(actual)}`);
 }
 
 describe('qr manipulation tests', () => {
-  beforeEach(() => {
-    testAreaDOM.textContent = '';
+  beforeEach(function () {
     testAreaDOM.append(...['test1', 'test2'].map((text) => {
       const p = document.createElement('p');
       p.textContent = text;
       return p;
     }));
-  });
-  it('`after` and `before`', () => {
-    const p = $('#test-area > p').after(function (i, oldTxt) {
+    this.p = $('#test-area > p').after(function (i, oldTxt) {
       const node = document.createElement('div');
       node.textContent = oldTxt + '::' + i;
       return node;
     });
-    domMatchesString(p[0].nextElementSibling, `<div>test1::0</div>`, 'after1');
-    domMatchesString(p[1].nextElementSibling, `<div>test2::1</div>`, 'after2');
+  });
+  afterEach(() => {
+    testAreaDOM.textContent = '';
+  });
+  it('`after` and `before`', function () {
+    console.log('thisthis', this);
+    const {p} = this.test.parent.ctx;
+    domMatchesString('after1', p[0].nextElementSibling, `<div>test1::0</div>`);
+    domMatchesString('after2', p[1].nextElementSibling, `<div>test2::1</div>`);
 
     p.before(function (i, oldTxt) {
       const node = document.createElement('div');
       node.textContent = 'aaaa:' + oldTxt + '::' + i;
       return node;
     });
-    domMatchesString(p[0].previousElementSibling, `<div>aaaa:test1::0</div>`, 'before1');
-    domMatchesString(p[1].previousElementSibling, `<div>aaaa:test2::1</div>`, 'before2');
-
+    domMatchesString('before1', p[0].previousElementSibling, `<div>aaaa:test1::0</div>`);
+    domMatchesString('before2', p[1].previousElementSibling, `<div>aaaa:test2::1</div>`);
+  });
+  it('`after` and `before` (chained)', function () {
+    const {p} = this.test.parent.ctx;
     p.after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
     ).after(document.createTextNode('----'), document.createElement('hr'));
+    domMatchesString('after and before chained (previous) 1', p[1].previousElementSibling.previousElementSibling, `<i>eee</i>`);
+    domMatchesString('after and before chained (previous) 2', p[0].previousElementSibling, `<u>uuu</u>`);
+    domMatchesString('after and before chained (previous) 3', p[1].previousElementSibling.previousElementSibling, `<i>eee</i>`);
+    domMatchesString('after and before chained (previous) 4', p[0].previousElementSibling, `<u>uuu</u>`);
+
+    domMatchesString('after and before chained (next) 1', p[0].nextSibling, `----`);
+    domMatchesString('after and before chained (next) 2', p[1].nextSibling, `----`);
+    domMatchesString('after and before chained (next) 3', p[0].nextElementSibling, `<hr>`);
+    domMatchesString('after and before chained (next) 4', p[1].nextElementSibling, `<hr>`);
   });
-  // describe('qr manipulation inner', () => {});
+
+  // Todo: Check last element in target does not have clones added
 });
 
 /*

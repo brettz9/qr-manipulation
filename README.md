@@ -24,6 +24,12 @@ In very early stages...
 - `prependTo(target)` - Does not support selectors (would require context
     (or assumption thereof) and/or QR mutual dependency); just wrap
     `target` in QR
+- `insertAfter(target)` - Does not support selectors (would require context
+    (or assumption thereof) and/or QR mutual dependency); just wrap
+    `target` in QR
+- `insertBefore(target)` - Does not support selectors (would require context
+    (or assumption thereof) and/or QR mutual dependency); just wrap
+    `target` in QR
 
 - `clone()` - Does not support optional `withDataAndEvents` and
   `deepWithDataAndEvents` arguments
