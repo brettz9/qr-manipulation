@@ -72,8 +72,9 @@ describe('qr manipulation tests', () => {
   });
   it('`after` and `before` (chained)', function () {
     const {p} = this.test.parent.ctx;
-    p.after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
-    ).after(document.createTextNode('----'), document.createElement('hr'));
+    p.after('<b>ooo</b>').before(
+      '<i>eee</i>', '<u>uuu</u>'
+    ).after(document.createTextNode('----'), document.createElement('hr'), document.createElement('br'));
     domMatchesString('after and before chained (previous) 1', p[1].previousElementSibling.previousElementSibling, `<i>eee</i>`);
     domMatchesString('after and before chained (previous) 2', p[0].previousElementSibling, `<u>uuu</u>`);
     domMatchesString('after and before chained (previous) 3', p[1].previousElementSibling.previousElementSibling, `<i>eee</i>`);
@@ -83,6 +84,8 @@ describe('qr manipulation tests', () => {
     domMatchesString('after and before chained (next) 2', p[1].nextSibling, `----`);
     domMatchesString('after and before chained (next) 3', p[0].nextElementSibling, `<hr>`);
     domMatchesString('after and before chained (next) 4', p[1].nextElementSibling, `<hr>`);
+    domMatchesString('after and before chained (next) 5', p[0].nextElementSibling.nextElementSibling, `<br>`);
+    domMatchesString('after and before chained (next) 6', p[1].nextElementSibling.nextElementSibling, `<br>`);
   });
 
   // Todo: Check last element in target does not have clones added
