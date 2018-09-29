@@ -2,10 +2,10 @@ import test, {addHTMLReporter} from '../node_modules/tressa/esm/index.js';
 import htmlReporter from '../node_modules/tressa/reporters/HTMLReporter.js';
 
 const mocha = {
-  setup ({ui, $context}) {
+  setup ({ui, $context, $allowHTML}) {
     if (ui === 'tdd') {
-      addHTMLReporter($context);
-      htmlReporter($context);
+      addHTMLReporter($context, {allowHTML: $allowHTML});
+      htmlReporter($context, {allowHTML: $allowHTML});
     }
     // else if (ui === 'bdd') { } // Todo
   }

@@ -52,7 +52,6 @@ In very early stages...
 - `attr(attributeName, value)`
 - `attr(attributeName, function)`
 
-
 There is also an `jml` method if a `jml` instance is supplied as the
 second argument to `manipulation`. This will expect an array to be used as
 part of building a Jamilih document fragment. After converting from Jamilih,

@@ -3,26 +3,69 @@ import $ from '../node_modules/query-result/esm/index.js';
 // import {manipulation} from '../dist/index-es.js';
 import {manipulation} from '../src/index.js';
 
-import {test, describe, it, assert, mocha} from './lite-mocha.js';
+import {test, describe, it, beforeEach, assert, mocha} from './lite-mocha.js';
 
 manipulation($);
+
 // Todo: Move to traversal
 $.extend('each', function each (cb, thisObj) {
   this.forEach(cb, thisObj);
   return this;
 });
 
+(async () => {
+const testAreaDOM = document.querySelector('#test-area');
+const testArea = $('#test-area');
 const $context = $('#results')[0];
-mocha.setup({ui: 'tdd', $context});
+mocha.setup({ui: 'tdd', $context, $allowHTML: true});
+/*
+function qrMatchesString (qr, expected) {
+  const actual = qr[0].outerHTML;
+  assert(actual === expected, `Expected HTML: ${expected}; actual: ${actual}`);
+}
+*/
+function escapeHTML (s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
-describe('qr manipulation tests111', () => {
-  it('abc', () => {
-    assert(true, 'ok');
+function domMatchesString (qr, expected) {
+  const actual = qr.outerHTML;
+  assert(actual === expected, `Expected HTML: ${
+    escapeHTML(expected)
+  };<br> actual: ${escapeHTML(actual)}`);
+}
+
+describe('qr manipulation tests', () => {
+  beforeEach(() => {
+    testAreaDOM.textContent = '';
+    testAreaDOM.append(...['test1', 'test2'].map((text) => {
+      const p = document.createElement('p');
+      p.textContent = text;
+      return p;
+    }));
   });
-  describe('qr manipulatin inner', () => {});
+  it('`after` and `before`', () => {
+    const p = $('#test-area > p').after(function (i, oldTxt) {
+      const node = document.createElement('div');
+      node.textContent = oldTxt + '::' + i;
+      return node;
+    });
+    domMatchesString(p[0].nextElementSibling, `<div>test1::0</div>`);
+    domMatchesString(p[1].nextElementSibling, `<div>test2::1</div>`);
+
+    /*
+    p.before(function (i, oldTxt) {
+      const node = document.createElement('div');
+      node.textContent = 'aaaa:' + oldTxt + '::' + i;
+      return node;
+    }).after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
+    ).after(document.createTextNode('----'), document.createElement('hr'));
+    assert(true);
+    */
+  });
+  // describe('qr manipulation inner', () => {});
 });
 
-(async () => {
 /*
 $('p').map((p) => {
   console.log('p', p);
@@ -42,20 +85,7 @@ await test.async((done) => {
   }, 500);
 }, 1000);
 */
-
-const testArea = $('#test-area');
-
-$('p').after(function (i, oldTxt) {
-  const node = document.createElement('div');
-  node.textContent = oldTxt + '::' + i;
-  return node;
-}).before(function (i, oldTxt) {
-  const node = document.createElement('div');
-  node.textContent = 'aaaa:' + oldTxt + '::' + i;
-  return node;
-}).after('<b>ooo</b>').before('<i>eee</i>', '<u>uuu</u>'
-).after(document.createTextNode('----'), document.createElement('hr'));
-
+return;
 testArea.append('the', document.createTextNode(' '), '<b>end</b>');
 
 $('#test-area > *:first-child').prepend('<b>BEGIN</b>');
