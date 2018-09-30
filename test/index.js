@@ -175,6 +175,63 @@ describe('qr-manipulation', function () {
       assert(p[0].firstElementChild.nextElementSibling.nextSibling.nodeValue === ' end ');
     });
   });
+
+  describe('`appendTo` and `prependTo`', function () {
+    setup();
+    it('`appendTo`', function () {
+      const {p} = this.test.parent.ctx;
+      p[0].appendChild(document.createElement('br'));
+      p[1].appendChild(document.createElement('br'));
+      p.appendTo('<b>END</b>');
+      domMatchesString(p[0].lastElementChild, '<b>END</b>');
+      domNotMatchesString(p[0].lastElementChild.previousElementSibling, '<b>END</b>');
+      domMatchesString(p[1].lastElementChild, '<b>END</b>');
+      domNotMatchesString(p[1].lastElementChild.previousElementSibling, '<b>END</b>');
+    });
+    it('`prependTo`', function () {
+      const {p} = this.test.parent.ctx;
+      p[0].appendChild(document.createElement('br'));
+      p[1].appendChild(document.createElement('br'));
+      p.prependTo('<b>BEGIN</b>');
+      domMatchesString(p[0].firstElementChild, '<b>BEGIN</b>');
+      domNotMatchesString(p[0].firstElementChild.nextElementSibling, '<b>BEGIN</b>');
+      domMatchesString(p[1].firstElementChild, '<b>BEGIN</b>');
+      domNotMatchesString(p[1].firstElementChild.nextElementSibling, '<b>BEGIN</b>');
+    });
+    it('`appendTo` and `prependTo` (chained)', function () {
+      const {p} = this.test.parent.ctx;
+      p.appendTo('<b>END</b>').prependTo('<b>BEGIN</b>');
+      domMatchesString(p[0].firstElementChild, '<b>BEGIN</b>');
+      domMatchesString(p[0].firstElementChild.nextElementSibling, '<b>END</b>');
+      domMatchesString(p[1].firstElementChild, '<b>BEGIN</b>');
+      domMatchesString(p[1].firstElementChild.nextElementSibling, '<b>END</b>');
+    });
+
+    it('`appendTo`/`prependTo` (only cloning for non-final items)', function () {
+      const {p} = this.test.parent.ctx;
+      const [div1] = [...qsa('#test-area > div')];
+      p.appendTo(div1); // Should make a copy of div1 after the first p and move the real one to after the 2nd p
+      domMatchesString('First item(s) gets the content', p[0].firstElementChild, '<div>test1::0</div>');
+      domMatchesString('Final item gets the content', p[1].firstElementChild, '<div>test1::0</div>');
+      domMatchesString('No first div is left', p[0].nextElementSibling, '<p>test2<div>test1::0</div></p>');
+      assert(p[0].firstElementChild !== div1, 'The first item(s) in a set get clones');
+      assert(p[1].firstElementChild === div1, 'The last item in a set gets the actual node');
+    });
+    it('`appendTo`/`prependTo` (types: HTML string, text node, arrays)', function () {
+      const {p} = this.test.parent.ctx;
+      p.prependTo('the', '<i>fake</i>', document.createTextNode(' end '), [
+        'the', '<b>actual</b>', document.createTextNode(' end ')
+      ]);
+      assert(p[0].firstChild.nodeValue === 'the');
+      domMatchesString(p[0].firstElementChild, '<i>fake</i>');
+      assert(p[0].firstElementChild.nextSibling.nodeValue === ' end ');
+      assert(p[0].firstElementChild.nextSibling.nextSibling.nodeValue === 'the');
+      domMatchesString(p[0].firstElementChild.nextElementSibling, '<b>actual</b>');
+      assert(p[0].firstElementChild.nextElementSibling.nextSibling.nodeValue === ' end ');
+    });
+    it('Use with selectors');
+    // Todo: Test arrays within arrays
+  });
 });
 /*
 $('p').map((p) => {

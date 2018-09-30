@@ -148,14 +148,13 @@ export const insertTo = function (method, $ = (sel) => [...document.querySelecto
   }[method] || 'append';
   return function (target) {
     const toType = type + 'To';
-    this.forEach((node, i, arr) => {
-      if (typeof target === 'string' && target.charAt(0) !== '<') {
-        target = $(target);
-      }
-      target = Array.isArray(target) ? target : [target];
-      node[type](...target.flatMap((content) => {
-        return convertToDOM(content, toType, i === arr.length - 1);
-      }));
+    if (typeof target === 'string' && target.charAt(0) !== '<') {
+      target = $(target);
+    }
+    target = Array.isArray(target) ? target : [target];
+    target.forEach((t, i, arr) => {
+      t = convertToDOM(t, toType, i === arr.length - 1);
+      t[type](...this);
     });
     return this;
   };

@@ -108,7 +108,7 @@ function describe (title, groupFn) {
   if (firstRun) {
     setTimeout(async () => {
       // console.log('testGroups', testGroups);
-      test.title(document.title);
+      test.title(typeof document !== 'undefined' ? document.title : 'Node tests');
       await iterateGroups(testGroups.innerGroups);
       test.end();
     });
