@@ -148,11 +148,11 @@ export const insertTo = function (method, $ = (sel) => [...document.querySelecto
   }[method] || 'append';
   return function (target) {
     const toType = type + 'To';
-    if (typeof target === 'string' && target.charAt(0) !== '<') {
-      target = $(target);
-    }
     target = Array.isArray(target) ? target : [target];
     target.forEach((t, i, arr) => {
+      if (typeof t === 'string' && t.charAt(0) !== '<') { // We don't put this in `convertToDom` as jQuery doesn't support for `append`-type methods--only `appendTo`
+        t = $(t);
+      }
       t = convertToDOM(t, toType, i === arr.length - 1);
       t[type](...this);
     });
