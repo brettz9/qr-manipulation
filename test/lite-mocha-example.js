@@ -9,6 +9,7 @@ describe('Group 1', function () {
   });
   describe('Group 1-A', function () {
     beforeEach(() => {
+      // eslint-disable-next-line promise/avoid-new
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           assert(true, 'Group 1-A beforeEach');
@@ -43,6 +44,7 @@ describe('Group 2', function () {
     }, 1000);
   });
   it('Group 2 Test 1', function () {
+    // eslint-disable-next-line promise/avoid-new
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         assert(true, 'ok group 2 test 1');

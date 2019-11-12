@@ -18,6 +18,7 @@ function getConfig ({format = 'umd', min = false}) {
   };
 }
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default [
   getConfig({format: 'umd', min: true}),
   getConfig({format: 'umd', min: false}),

@@ -16,7 +16,7 @@ function convertToString (content, type) {
         return s + convertToString(node, type);
       }, '');
     }
-    case undefined: {
+    case undefined:
       // Array of nodes, QueryResult objects
       // if (Array.isArray(content)) {
       if (typeof content.reduce === 'function') {
@@ -24,9 +24,10 @@ function convertToString (content, type) {
           return s + convertToString(node, type);
         }, '');
       }
+      break;
+    default:
     }
-    }
-    return;
+    return undefined;
   }
   case 'string': {
     return content;
@@ -319,6 +320,8 @@ export const toggleClass = function (classNameOrCb, state) {
     }
     break;
   }
+  default:
+    break;
   }
 };
 

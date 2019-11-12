@@ -11,10 +11,10 @@ const mocha = {
   }
 };
 
-async function iterateGroups (innerGroups) {
-  await innerGroups.reduce(
-    async (p, {title: groupTitle, beforeEachs, afterEachs, its, innerGroups}) => {
-      await p;
+async function iterateGroups (innerGrps) {
+  await innerGrps.reduce(
+    async (prom, {title: groupTitle, beforeEachs, afterEachs, its, innerGroups}) => {
+      await prom;
       const parentCtx = {};
       function labelAndFn (context, beforeFunction, afterFunction) {
         return async function (p, {title, fn}) {
@@ -38,6 +38,7 @@ async function iterateGroups (innerGroups) {
           if (ret && ret.then) {
             await ret;
           } else if (fn.length && !finished) {
+            // eslint-disable-next-line promise/avoid-new
             await new Promise((resolve, reject) => {
               res = resolve;
               rej = reject;

@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.qrManipulation = {})));
+  (global = global || self, factory(global.qrManipulation = {}));
 }(this, (function (exports) { 'use strict';
 
   function _typeof(obj) {
@@ -43,6 +43,10 @@
   }
 
   function _iterableToArrayLimit(arr, i) {
+    if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+      return;
+    }
+
     var _arr = [];
     var _n = true;
     var _d = false;
@@ -106,18 +110,18 @@
               }
 
             case undefined:
-              {
-                // Array of nodes, QueryResult objects
-                // if (Array.isArray(content)) {
-                if (typeof content.reduce === 'function') {
-                  return content.reduce(function (s, node) {
-                    return s + convertToString(node, type);
-                  }, '');
-                }
+              // Array of nodes, QueryResult objects
+              // if (Array.isArray(content)) {
+              if (typeof content.reduce === 'function') {
+                return content.reduce(function (s, node) {
+                  return s + convertToString(node, type);
+                }, '');
               }
+
+              break;
           }
 
-          return;
+          return undefined;
         }
 
       case 'string':
@@ -542,23 +546,23 @@
     return $;
   };
 
+  exports.addClass = addClass;
   exports.after = after;
-  exports.before = before;
   exports.append = append;
-  exports.prepend = prepend;
-  exports.html = html;
-  exports.text = text;
-  exports.insertTo = insertTo;
+  exports.attr = attr;
+  exports.before = before;
   exports.clone = clone;
   exports.empty = empty;
-  exports.remove = remove;
-  exports.attr = attr;
-  exports.removeAttr = removeAttr;
-  exports.addClass = addClass;
-  exports.removeClass = removeClass;
   exports.hasClass = hasClass;
-  exports.toggleClass = toggleClass;
+  exports.html = html;
+  exports.insertTo = insertTo;
   exports.manipulation = manipulation;
+  exports.prepend = prepend;
+  exports.remove = remove;
+  exports.removeAttr = removeAttr;
+  exports.removeClass = removeClass;
+  exports.text = text;
+  exports.toggleClass = toggleClass;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

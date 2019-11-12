@@ -13,6 +13,7 @@ $.extend('each', function each (cb, thisObj) {
   return this;
 });
 
+// eslint-disable-next-line require-await
 (async () => {
 const qs = (sel) => document.querySelector(sel);
 const qsa = (sel) => document.querySelectorAll(sel);
@@ -125,8 +126,8 @@ describe('qr-manipulation', function () {
     setup();
     it('`append`', function () {
       const {p} = this.test.parent.ctx;
-      p[0].appendChild(document.createElement('br'));
-      p[1].appendChild(document.createElement('br'));
+      p[0].append(document.createElement('br'));
+      p[1].append(document.createElement('br'));
       p.append('<b>END</b>');
       domMatchesString(p[0].lastElementChild, '<b>END</b>');
       domNotMatchesString(p[0].lastElementChild.previousElementSibling, '<b>END</b>');
@@ -135,8 +136,8 @@ describe('qr-manipulation', function () {
     });
     it('`prepend`', function () {
       const {p} = this.test.parent.ctx;
-      p[0].appendChild(document.createElement('br'));
-      p[1].appendChild(document.createElement('br'));
+      p[0].append(document.createElement('br'));
+      p[1].append(document.createElement('br'));
       p.prepend('<b>BEGIN</b>');
       domMatchesString(p[0].firstElementChild, '<b>BEGIN</b>');
       domNotMatchesString(p[0].firstElementChild.nextElementSibling, '<b>BEGIN</b>');
@@ -196,7 +197,7 @@ await test.async((done) => {
 }, 1000);
 */
 return;
-/* eslint-disable */
+/* eslint-disable no-unreachable */
 
 // 'appendTo', 'prependTo', 'insertAfter', 'insertBefore',
 
@@ -239,4 +240,5 @@ $('#anotherDiv4').html([document.createElement('hr'), ...qr]);
 // 'addClass', 'hasClass', 'removeClass', 'toggleClass'
 
 test.end();
+/* eslint-enable no-unreachable */
 })();
