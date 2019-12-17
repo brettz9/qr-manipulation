@@ -1,5 +1,9 @@
 # qr-manipulation
 
+## ?
+
+- npm: Update devDeps
+
 ## 0.7.0
 
 - Breaking change: Remove `htmlJML` in favor of `jml`
