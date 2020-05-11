@@ -1,7 +1,9 @@
+'use strict';
+
 module.exports = {
-  "extends": ["ash-nazg/sauron"],
-  "parserOptions": {
-    "sourceType": "module"
+  extends: ['ash-nazg/sauron-node'],
+  parserOptions: {
+    sourceType: 'module'
   },
   settings: {
     polyfills: [
@@ -10,11 +12,20 @@ module.exports = {
       'Promise.resolve'
     ]
   },
-  "env": {
-    "node": false,
-    "browser": true
+  overrides: [
+    {
+      files: '.eslintrc.js',
+      extends: ['plugin:node/recommended-script'],
+      rules: {
+        'import/no-commonjs': 0
+      }
+    }
+  ],
+  env: {
+    node: false,
+    browser: true
   },
-  "rules": {
+  rules: {
     // Disabling for now
     'max-len': 0,
     'unicorn/no-fn-reference-in-iterator': 0,

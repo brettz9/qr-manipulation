@@ -66,6 +66,7 @@ function convertToDOM (content, type, avoidClone) {
   }
   case 'string': {
     const div = document.createElement('div');
+    // eslint-disable-next-line no-unsanitized/property
     div.innerHTML = content;
     return div.firstElementChild || div.firstChild;
   }

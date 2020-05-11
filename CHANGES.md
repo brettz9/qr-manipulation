@@ -2,6 +2,15 @@
 
 ## ?
 
+- Build: Update as per latest devDeps
+- Build: Use "json" extension for RC
+- Linting (ESLint): As per latest ash-nazg / ESLint 7
+- Maintenance: Add `.editorconfig`
+- npm: Add rollup config to ignore
+- npm: Add missing peer dep. (no-unsanitized)
+- npm: Add eslint and rollup to test script
+- npm: Update `rollup-plugin-babel` to `@rollup/plugin-babel`
+    and make explicit `babelHelpers` value of `bundled`
 - npm: Update devDeps
 
 ## 0.7.0
